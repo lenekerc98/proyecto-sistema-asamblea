@@ -1,0 +1,24 @@
+Quorum fijado: 54.0
+Total Votos en BD: 9
+Voto ID: 5, Pregunta: 2, Opcion: abstención, %_voto: 5.555555555555555, Acc_id: 33
+  Accionista %: 3.0
+Voto ID: 6, Pregunta: 2, Opcion: nulo, %_voto: 9.25925925925926, Acc_id: 41
+  Accionista %: 5.0
+Voto ID: 7, Pregunta: 2, Opcion: nulo, %_voto: 48.148148148148145, Acc_id: 37
+  Accionista %: 26.0
+Voto ID: 8, Pregunta: 2, Opcion: nulo, %_voto: 24.074074074074073, Acc_id: 38
+  Accionista %: 13.0
+Voto ID: 9, Pregunta: 3, Opcion: sí, %_voto: 9.25925925925926, Acc_id: 41
+  Accionista %: 5.0
+Voto ID: 10, Pregunta: 3, Opcion: sí, %_voto: 48.148148148148145, Acc_id: 37
+  Accionista %: 26.0
+Voto ID: 11, Pregunta: 3, Opcion: sí, %_voto: 24.074074074074073, Acc_id: 38
+  Accionista %: 13.0
+Voto ID: 12, Pregunta: 3, Opcion: nulo, %_voto: 12.962962962962962, Acc_id: 39
+  Accionista %: 7.0
+Voto ID: 13, Pregunta: 3, Opcion: sí, %_voto: 5.555555555555555, Acc_id: 33
+  Accionista %: 3.0
+Pregunta ID: 3, Estado: activa, Opciones: ['SÍ', 'NO', 'ABSTENCIÓN', 'NULO']
+Pregunta ID: 4, Estado: activa, Opciones: ['SÍ', 'NO', 'ABSTENCIÓN']
+Pregunta ID: 5, Estado: activa, Opciones: ['SÍ', 'NO', 'ABSTENCIÓN', 'NULO', 'OBVIO']
+Pregunta ID: 2, Estado: cerrada, Opciones: ['ABSTENCIÓN', 'LISTA A', 'LISTA B', 'NULO']

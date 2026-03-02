@@ -1,0 +1,487 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.5/dist/js/bootstrap.bundle.min.js" integrity="sha384-k6d4wzSIapyDyv1kpU366/PK5hCdSbCRGRCMv+eplOQJWyd1fbcAu9OCUj5zNLiq" crossorigin="anonymous"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.5/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-SgOJa3DmI69IUzQ2PVdRZhwQ+dy64/BUtbMJw1MZ8t5HZApcHrRKUc4W0kG879m7" crossorigin="anonymous">
+    <link rel="stylesheet" href="css/fontawesome.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <title>Preguntas</title>
+    <style>
+        .contenedor-circulos {
+            display: flex;
+            justify-content: flex-end;
+            margin-top: 20px;
+            margin-right: 30px;
+        }
+        .resultados-circulares {
+            display: flex;
+            flex-direction: row;
+            gap: 30px;
+        }
+        .circulo {
+            width: 200px;
+            height: 200px;
+            border: 2px solid black;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            background-color: white;
+            box-shadow: 2px 2px 8px rgba(0, 0, 0, 0.1);
+            font-size: 50px;
+        }
+        body {
+            font-family: 'Times New Roman', Times, serif;
+            background: linear-gradient(to right, #b2fab4, #80d0c7);
+        }
+        .item-circulo {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            font-family: 'Times New Roman', Times, serif;
+        }
+        .titulo-circulo {
+            font-size: 25px;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        .resultados-section {
+            display: none;
+        }
+		#preguntaSelect {
+			width: 100%; 
+			font-size: 18px; 
+			white-space: normal; 
+			padding: 10px;
+		}
+
+		#preguntaSelect option {
+			white-space: normal; 
+			padding: 8px;
+			line-height: 1.5;
+		}
+
+		.form-control {
+			max-width: 100%;
+		}
+    </style>
+</head>
+<body>
+    <div class="d-flex align-items-center justify-content-center mb-4 gap-2">
+        <a href="principal.html" class="btn btn-outline-dark">
+            <i class="fas fa-arrow-left"></i>
+        </a>
+        <u><h1 id="tituloPregunta" style="text-align:center; font-family:Times New Roman; font-size:40px;">PREGUNTAS</h1></u>
+    </div>
+    <div>
+        <div class="form" style="text-align:center;font-family:Times New Roman;">
+            <div class="form-control">
+                <!-- SECCION DE PREGUNTAS -->
+                <select class="form-select" style="font-family:Times New Roman;font-size:16px" id="preguntaSelect">
+                    <option selected disabled>Seleccione la pregunta</option>
+                    <option id="pregunta_1" value="1">1. ¿Está de acuerdo en aprobar el primer punto de orden del día, el cual trata de: Conocer y resolver sobre los informes de Directorio, Gerente General, Comisario Principal, Auditores externos, y del Fideicomiso Landuni, respecto del ejercicio económico 2024?</option>
+                    <option id="pregunta_2" value="2">2. ¿Está de acuerdo en aprobar el segundo punto de orden del día, el cual trata de: Conocer y resolver sobre los estados financieros de la compañía y sobre el destino de las utilidades, respecto del ejercicio económico 2024?</option>
+                    <option id="pregunta_3" value="3">3.1. ¿Está de acuerdo en aprobar el tercer punto de orden del día, con base en la lista (de nombres) presentada ante la Junta General,  el cual trata de: Conocer y resolver sobre el nombramiento y designación de las calidades estatutarias de Presidente, Vicepresidente, Gerente General, Directores Principales, Directores Suplentes, Comisario Principal y Comisario Suplente de la compañía?</option>
+                    <option id="pregunta_4" value="4">3.2. ¿Está de acuerdo en aprobar el tercer punto de orden del día, con base en las listas (de nombres) presentadas ante la Junta General, el cual trata de: Conocer y resolver sobre el nombramiento y designación de las calidades estatutarias de Presidente, Vicepresidente, Gerente General, Directores Principales, Directores Suplentes, Comisario Principal y Comisario Suplente de la compañía?</option>
+                    <option id="pregunta_5" value="5">4. ¿Está de acuerdo en aprobar el cuarto punto de orden del día, el cual trata de: Designar a la firma de Auditores Externos (expuesta ante la Junta General) para el ejercicio económico 2025, y autorizar a la Gerencia General para que celebre el respectivo contrato?</option>
+                    <option id="pregunta_6" value="6">5. ¿Está de acuerdo en aprobar el quinto punto de orden del día, el cual trata de: Designar a dos miembros comisionados (expuestos ante la Junta General) para la suscripción y aprobación del acta de sesión?</option>
+                </select>
+            </div>
+            <div class="resultados-section">
+                <div style="margin-top:50px;">
+                    <div class="contenedor-circulos">
+                        <div class="resultados-circulares">
+                            <div class="item-circulo">
+                                <div class="titulo-circulo">SI</div>
+                                <div class="circulo"><h1 style="font-size:58px;" id="porcentaje_si"><b>0.00%</b></h1></div>
+                            </div>
+                            <div class="item-circulo">
+                                <div class="titulo-circulo">NO</div>
+                                <div class="circulo"><h1 style="font-size:58px;" id="porcentaje_no"><b>0.00%</b></h1></div>
+                            </div>
+                            <div class="item-circulo">
+                                <div class="titulo-circulo">BLANCO</div>
+                                <div class="circulo"><h1 style="font-size:58px;" id="porcentaje_blanco"><b>0.00%</b></h1></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form" style="font-family:Times New Roman">
+                        <div style="margin-top:-200px;margin-right:850px;">
+                            <input id="num_id" type="number" style="text-align:center;margin-top:10px;font-size:25px;" placeholder="INGRESAR N°"><br>
+                            <div class="form-group">
+                                <input id="nombre_id" style="text-align:center;margin-top:10px;font-size:25px; width:500px;" placeholder="NOMBRE DE ACCIONISTA" disabled><br>
+                                <input id="acciones_id" style="text-align:center;margin-top:10px;font-size:25px;" placeholder="ACCIONES" disabled><br>
+                                <input id="porcentaje_id" style="text-align:center;margin-top:10px;font-size:25px;" placeholder="% DE VOTACION" disabled><br>
+                            </div>
+                        </div>
+                    </div>
+                    <div style="margin-top:90px; margin-left:100px;">
+                        <button type="button" class="btn btn-success">SI</button>
+                        <button type="button" class="btn btn-info">NO</button>
+                        <button type="button" class="btn btn-primary">BLANCO</button>
+                    </div>
+                </div>
+                <button id="aceptar" onclick="finalizar()" style="margin-top:20px;" type="button" class="btn btn-success">Finalizar Votación</button>
+            </div>
+        </div>
+    </div>
+
+	<script type="text/javascript">
+
+		document.querySelectorAll('#preguntaSelect option').forEach(opt => {
+			opt.setAttribute('title', opt.textContent);
+		});
+
+
+		// VALIDACION DE BUSQUEDA CON LA TECLA ENTER
+		document.getElementById("num_id").addEventListener("keyup", function (event) {
+			if (event.key === "Enter") {
+				const valor = this.value.trim();
+				if (valor !== "") buscar();
+			}
+		});
+
+		// CAMPOS INICIALIZADOS EN 0
+		let resultadosPorPregunta = {
+			1: { si: 0, no: 0, blanco: 0 },
+			2: { si: 0, no: 0, blanco: 0 },
+			3: { si: 0, no: 0, blanco: 0 },
+			4: { si: 0, no: 0, blanco: 0 },
+			5: { si: 0, no: 0, blanco: 0 },
+			6: { si: 0, no: 0, blanco: 0 }
+		};
+		let accionistas = {};
+		let preguntaActual = null;
+
+		// CARGAR DATOS INICIALES
+		fetch("php/inicializar_votacion.php")
+			.then(response => response.json())
+			.then(data => {
+				data.accionistas.forEach(a => {
+					const porcentaje = parseFloat(a.porcentaje);
+					const numero = a.numero;
+
+					accionistas[numero] = {
+						nombre: a.nombre,
+						acciones: a.acciones,
+						porcentaje,
+						votos: { 1: "si", 2: "si", 3: "si", 4: "si", 5: "si", 6: "si" }
+					};
+
+					for (let p = 1; p <= 6; p++) {
+						resultadosPorPregunta[p].si += porcentaje;
+					}
+				});
+				actualizarResultadosUI();
+			})
+			.catch(err => console.error("Error al inicializar votación:", err));
+
+		// SELECCIÓN DE PREGUNTA CON CONFIRMACIÓN
+		document.getElementById("preguntaSelect").addEventListener("change", function () {
+			preguntaActual = this.value;  // ACTUALIZA LA PREGUNTA
+			document.getElementById("tituloPregunta").textContent = "PREGUNTA " + preguntaActual;
+
+			// CAMBIA LOS NOMBRES DE LAS OPCIONES
+			cambiarOpcionesPregunta(preguntaActual);
+
+			// CAMBIA LOS NOMBRES DE LOS LABELS DE LOS CIRCULOS
+			cambiarNombresCírculos(preguntaActual);
+
+			const verDatosAnteriores = confirm("¿Desea ver los datos anteriores de esta pregunta?");
+
+			if (verDatosAnteriores) {
+				// Cargar los datos anteriores si el usuario lo confirma
+				fetch("php/obtener_resultado_final.php?pregunta=" + preguntaActual)
+					.then(response => response.json())
+					.then(data => {
+						if (data.success) {
+							resultadosPorPregunta[preguntaActual] = {
+								si: parseFloat(data.votos_si),
+								no: parseFloat(data.votos_no),
+								blanco: parseFloat(data.votos_blanco)
+							};
+							document.getElementById("num_id").disabled = true;
+						} else {
+							alert("No hay resultados finales para esta pregunta.");
+							resultadosPorPregunta[preguntaActual] = { si: 100, no: 0, blanco: 0 };
+							document.getElementById("num_id").disabled = false;
+						}
+						actualizarResultadosUI();
+						
+					})
+					.catch(err => console.error("Error al cargar resultados:", err));
+					
+
+			} else {
+				// SEGUNDO CONFIRM PARA ELIMINAR DATOS O NO
+				const deseaEliminar = confirm("¿Desea eliminar los datos de la tabla?");
+
+				if (deseaEliminar) {
+					// ELIMINA LOS DATOS DE LA PREGUNTA ACTUAL
+					resultadosPorPregunta[preguntaActual] = { si: 100, no: 0, blanco: 0 };
+					actualizarResultadosUI();
+					limpiarRegistros(preguntaActual);  // LIMPIA LOS REGISTROS DE ESTA PREGUNTA
+				} else {
+					// SELECCIONAR OTRA PREGUNTA
+					alert("Por favor, seleccione otra pregunta.");
+					preguntaActual = null; 
+				}
+			}
+
+			// MOSTRAR LA SECCION DE RESULTADOS
+			document.querySelector(".resultados-section").style.display = "block";
+		});
+
+		// FUNCION PARA CAMBIAR LOS NOMBRES DE LAS OPCIONES SEGÚN LA PREGUNTA
+		function cambiarOpcionesPregunta(pregunta) {
+			const btnSi = document.querySelector(".btn-success");
+			const btnNo = document.querySelector(".btn-info");
+			const btnBlanco = document.querySelector(".btn-primary");
+
+			if (pregunta == "3") {
+				// PARA LA PREGUNTA 3
+				if (btnSi) btnSi.textContent = "Lista A";
+				if (btnNo) btnNo.textContent = "Nulo";
+				if (btnBlanco) btnBlanco.textContent = "Blancos";
+			} else if (pregunta == "4") {
+				// PARA LA PREGUNTA 4
+				if (btnSi) btnSi.textContent = "Lista A";
+				if (btnNo) btnNo.textContent = "Lista B";
+				if (btnBlanco) btnBlanco.textContent = "Nulo/Blancos";
+			} else {
+				// SE MANTIENE LOS LABELS PARA LAS DEMAS PREGUNTAS
+				if (btnSi) btnSi.textContent = "Sí";
+				if (btnNo) btnNo.textContent = "No";
+				if (btnBlanco) btnBlanco.textContent = "Blanco";
+			}
+		}
+
+		// FUNCION PARA CAMBIAR LOS NOMBRES DE LOS CÍRCULOS SEGÚN LA PREGUNTA
+		function cambiarNombresCírculos(pregunta) {
+			const titulosCirculos = document.querySelectorAll('.titulo-circulo');
+
+			if (titulosCirculos.length >= 3) {
+				const nombresCirculos = {
+					3: ["Lista A", "Nulo", "Blancos"],  // PARA LA PREGUNTA 3
+					4: ["Lista A", "Lista B", "Nulo/Blancos"],  // PARA LA PREGUNTA 4
+				};
+
+				if (nombresCirculos[pregunta]) {
+					const [nombreSi, nombreNo, nombreBlanco] = nombresCirculos[pregunta];
+
+					// ACTUALIZAMOS LOS LABEL DE LOS CIRCULOS
+					titulosCirculos[0].textContent = nombreSi;
+					titulosCirculos[1].textContent = nombreNo;
+					titulosCirculos[2].textContent = nombreBlanco;
+				} else {
+					// CAMBIOS PARA LA PREGUNTA 3
+					titulosCirculos[0].textContent = "SI";
+					titulosCirculos[1].textContent = "NO";
+					titulosCirculos[2].textContent = "BLANCO";
+				}
+			} else {
+				console.error("No se encontraron los elementos de los títulos de los círculos.");
+			}
+		}
+
+		// FUNCION PARA REALIZAR LA BUSQUEDA DEL ACCIONISTA
+		function buscar() {
+			const numero = document.getElementById("num_id").value.trim();
+			if (numero === "") {
+				alert("INGRESE EL N°");
+				return;
+			}
+			$.ajax({
+				url: "php/buscar_num.php",
+				type: "POST",
+				data: { numero_server: numero },
+				success: function (data) {
+					try {
+						const obj = JSON.parse(data);
+						if (parseInt(obj.p_validar) === 1) {
+							const acciones = parseFloat(obj.acciones);
+							const totalAcciones = parseFloat(obj.total_acciones);
+							const porcentaje = (acciones / totalAcciones) * 100;
+							document.getElementById("nombre_id").value = obj.nombre;
+							document.getElementById("acciones_id").value = acciones;
+							document.getElementById("porcentaje_id").value = porcentaje.toFixed(3) + "%";
+							// DESHABILITA LOS CAMPOS UNA VEZ ENCONTRADOS
+							["num_id", "nombre_id", "acciones_id", "porcentaje_id"].forEach(id => {
+								document.getElementById(id).disabled = true;
+							});
+						} else {
+							alert(obj.p_mensaje);
+						}
+					} catch (e) {
+						console.log("Error en el JSON:", data);
+					}
+				}
+			});
+		}
+		// BOTONES DE VOTOS
+		document.querySelector(".btn-success").addEventListener("click", () => registrarVoto("si"));
+		document.querySelector(".btn-info").addEventListener("click", () => registrarVoto("no"));
+		document.querySelector(".btn-primary").addEventListener("click", () => registrarVoto("blanco"));
+		function registrarVoto(opcion) {
+			const numero = document.getElementById("num_id").value.trim();
+			if (!numero || !accionistas[numero]) {
+				alert("Debe buscar un accionista válido.");
+				return;
+			}
+			if (!preguntaActual) {
+				alert("Debe seleccionar una pregunta.");
+				return;
+			}
+			registrar(opcion);
+		}
+		function actualizarResultadosUI() {
+			if (!preguntaActual) return;
+			const resultados = resultadosPorPregunta[preguntaActual];
+			document.getElementById("porcentaje_si").textContent = resultados.si.toFixed(2) + "%";
+			document.getElementById("porcentaje_no").textContent = resultados.no.toFixed(2) + "%";
+			document.getElementById("porcentaje_blanco").textContent = resultados.blanco.toFixed(2) + "%";
+		}
+		function registrar(opcion) {
+			const numero = document.getElementById("num_id").value;
+			const pregunta = parseInt(preguntaActual);
+
+			if (!numero || !pregunta || !accionistas[numero]) {
+				alert("Accionista no válido o pregunta no seleccionada.");
+				return;
+			}
+			const accionista = accionistas[numero];
+			const porcentaje = accionista.porcentaje;
+			const votoAnterior = accionista.votos[pregunta];
+			// RESTAR EL VOTO ANTERIOR
+			if (votoAnterior) {
+				resultadosPorPregunta[pregunta][votoAnterior] -= porcentaje;
+			}
+			// REGISTRAR EL NUEVO VOTO
+			resultadosPorPregunta[pregunta][opcion] += porcentaje;
+			accionista.votos[pregunta] = opcion;
+			actualizarResultadosUI();
+			$.ajax({
+				url: "php/registrar_p.php",
+				type: "POST",
+				data: {
+					numero,
+					nombre: accionista.nombre,
+					acciones: accionista.acciones,
+					porcentaje_voto: porcentaje,
+					porcentaje_si: opcion === "si" ? porcentaje : 0,
+					porcentaje_no: opcion === "no" ? porcentaje : 0,
+					porcentaje_blanco: opcion === "blanco" ? porcentaje : 0,
+					pregunta
+				},
+				success: function (response) {
+					try {
+						const res = JSON.parse(response);
+						if (res.p_validar === 1) {
+							alert(res.p_mensaje);
+							// DESHABILITA LOS CMAPOS DE TEXTO
+							document.getElementById("nombre_id").disabled = true;
+							document.getElementById("acciones_id").disabled = true;
+							document.getElementById("porcentaje_id").disabled = true;
+							document.getElementById("num_id").disabled = false; // SE QUEDA ACTIVO DESPUES DE REGISTAR EL CAMPO NUMERO
+							// LIMPIAR LOS CAMPOS DESPUES DE REGISTRAR EL VOTO
+							document.getElementById("num_id").value = "";
+							document.getElementById("nombre_id").value = "";
+							document.getElementById("acciones_id").value = "";
+							document.getElementById("porcentaje_id").value = "";
+							// VOLVER A PONER EL CURSOR EN EL CAMPO DE NUMERO PARA VOLVE A PREGUNTAR
+							document.getElementById("num_id").focus();
+						} else {
+							alert("Error: " + res.p_mensaje);
+						}
+					} catch (e) {
+						alert("Error inesperado en la respuesta del servidor.");
+						console.log(response);
+					}
+				},
+				error: function (_, __, error) {
+					alert("Error al registrar: " + error);
+				}
+			});
+		}
+
+		function finalizar() {
+			const pregunta = document.getElementById("preguntaSelect").value;
+			const porcentaje_si = parseFloat(document.getElementById("porcentaje_si").textContent.replace("%", "")) || 0;
+			const porcentaje_no = parseFloat(document.getElementById("porcentaje_no").textContent.replace("%", "")) || 0;
+			const porcentaje_blanco = parseFloat(document.getElementById("porcentaje_blanco").textContent.replace("%", "")) || 0;
+
+			if (!pregunta) {
+				alert("Debe seleccionar una pregunta.");
+				return;
+			}
+
+			const total = porcentaje_si + porcentaje_no + porcentaje_blanco;
+			if (Math.abs(total - 100) > 0.01) {
+				alert("La suma de los porcentajes debe ser exactamente 100%.");
+				return;
+			}
+
+			$.ajax({
+				url: "php/finalizar_pregunta.php",
+				type: "POST",
+				data: {
+					pregunta,
+					votos_si: porcentaje_si,
+					votos_no: porcentaje_no,
+					votos_blanco: porcentaje_blanco
+				},
+				success: function (response) {
+					try {
+						const res = JSON.parse(response);
+						if (res.p_validar === "1") {
+							alert("Porcentajes finales guardados correctamente.");
+						} else {
+							alert("Error: " + res.p_mensaje);
+						}
+					} catch (e) {
+						alert("Respuesta inesperada del servidor.");
+						console.log(response);
+					}
+				},
+				error: function (_, __, error) {
+					alert("Error en la petición: " + error);
+				}
+			});
+		}
+
+		function limpiarRegistros(pregunta) {
+			$.ajax({
+				url: "php/limpiar_votacion.php",  
+				type: "POST",
+				data: { pregunta: pregunta }, 
+				success: function(response) {
+					try {
+						const res = JSON.parse(response);
+						if (res.success) {
+							// SI LOS REGISTROS SE ELIMINAN SE ENVIA UN MENSAJE
+							alert("Registros de la pregunta limpiados exitosamente.");
+							// ACTUALIZA LOS RESULTADOS
+							resultadosPorPregunta[pregunta] = { si: 100, no: 0, blanco: 0 };
+							actualizarResultadosUI();
+						} else {
+							// SI HAY UN ERROR EN EL PHP SE MOSTRARA EL MENSAJE ERROR
+							alert("Error al limpiar registros: " + res.message);
+						}
+					} catch (e) {
+						console.error("Error al procesar la respuesta de la eliminación:", e);
+						alert("Error inesperado al procesar la respuesta.");
+					}
+				},
+				error: function() {
+					alert("Error al limpiar registros de la pregunta.");
+				}
+			});
+		}
+
+	</script>
+</body>
+</html>

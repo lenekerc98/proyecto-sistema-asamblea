@@ -1,0 +1,263 @@
+@import './styles/Glassmorphism.css';
+
+/* Reseteo de estilos base para pantalla completa */
+:root {
+  --primary-accent: #6366f1;
+  --primary-accent-hover: #4f46e5;
+
+  /* DARK MODE (Default) */
+  --bg-dark-void: #020617;
+  --bg-card: rgba(30, 41, 59, 0.98);
+  --bg-card-solid: #1e293b;
+  --bg-surface: rgba(255, 255, 255, 0.05);
+  --glass-bg: rgba(255, 255, 255, 0.03);
+  --glass-border: rgba(255, 255, 255, 0.08);
+  --text-main: #ffffff;
+  --text-dim: rgba(255, 255, 255, 0.6);
+  --text-muted-custom: #94a3b8;
+  --input-bg: rgba(0, 0, 0, 0.3);
+  --table-header-bg: rgba(255, 255, 255, 0.04);
+  --card-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.2), 0 2px 4px -1px rgba(0, 0, 0, 0.1);
+  color-scheme: dark;
+}
+
+/* LIGHT MODE OVERRIDES */
+body.light-mode {
+  --bg-dark-void: #f8fafc;
+  --bg-card: rgba(255, 255, 255, 0.95);
+  --bg-card-solid: #ffffff;
+  --bg-surface: rgba(15, 23, 42, 0.05);
+  --glass-bg: rgba(15, 23, 42, 0.03);
+  --glass-border: rgba(15, 23, 42, 0.1);
+  --text-main: #0f172a;
+  --text-dim: #475569;
+  --text-muted-custom: #64748b;
+  --input-bg: #ffffff;
+  --table-header-bg: #f1f5f9;
+  --card-shadow: 0 10px 15px -3px rgba(15, 23, 42, 0.1), 0 4px 6px -2px rgba(15, 23, 42, 0.05);
+  color-scheme: light;
+}
+
+/* Forzar visibilidad máxima en textos */
+.text-muted,
+.form-label,
+label,
+p.text-muted {
+  color: var(--text-dim) !important;
+  opacity: 1 !important;
+}
+
+.text-white {
+  color: #ffffff !important;
+}
+
+.text-main {
+  color: var(--text-main) !important;
+}
+
+.text-dim {
+  color: var(--text-dim) !important;
+}
+
+.bg-surface {
+  background-color: var(--bg-surface) !important;
+}
+
+.border-main-opacity {
+  border-color: var(--glass-border) !important;
+}
+
+.border-main-light {
+  border-color: var(--glass-border) !important;
+  opacity: 0.5;
+}
+
+html,
+
+body,
+#root {
+  margin: 0;
+  padding: 0;
+  width: 100vw;
+  height: 100vh;
+  min-height: 100vh;
+  background-color: var(--bg-dark-void);
+  overflow-x: hidden;
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+}
+
+/* Estilos Globales de la Aplicación */
+#root {
+  display: block;
+  text-align: left;
+}
+
+/* ESTILOS DE LOGIN */
+.login-full-screen {
+  min-height: 100vh;
+  width: 100vw;
+  background-image:
+    radial-gradient(circle at 10% 20%, rgba(99, 102, 241, 0.12) 0%, transparent 40%),
+    radial-gradient(circle at 90% 80%, rgba(79, 70, 229, 0.08) 0%, transparent 40%);
+}
+
+.login-glass-card {
+  background: rgba(30, 41, 59, 0.95) !important;
+  border: 1px solid var(--glass-border) !important;
+}
+
+.logo-container {
+  background: rgba(99, 102, 241, 0.1);
+}
+
+.custom-input-group .form-control {
+  box-shadow: none !important;
+  border-color: var(--glass-border);
+}
+
+.custom-input-group .form-control:focus {
+  border-color: var(--primary-accent) !important;
+  background-color: var(--bg-surface) !important;
+  color: var(--text-main) !important;
+}
+
+.custom-input-group .input-group-text {
+  border-color: var(--glass-border);
+}
+
+.btn-password-toggle {
+  border-color: var(--glass-border) !important;
+  transition: all 0.2s ease !important;
+}
+
+.btn-password-toggle:hover,
+.btn-password-toggle:focus,
+.btn-password-toggle:active {
+  background-color: transparent !important;
+  color: var(--primary-accent) !important;
+  border-color: var(--glass-border) !important;
+  box-shadow: none !important;
+}
+
+.custom-input-group:focus-within .input-group-text,
+.custom-input-group:focus-within .btn-password-toggle {
+  border-color: var(--primary-accent) !important;
+  color: var(--primary-accent) !important;
+}
+
+.login-btn-gradient {
+  background: linear-gradient(135deg, var(--primary-accent) 0%, #a855f7 100%) !important;
+  border: none !important;
+  transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.2s ease !important;
+  border-radius: 10px !important;
+}
+
+/* Global Button Radius Adjustment */
+.btn {
+  border-radius: 10px !important;
+}
+
+/* Maintain rounded-pill for specific elements if needed, otherwise rely on 10px */
+.rounded-pill {
+  border-radius: 50rem !important;
+}
+
+
+.extra-small {
+  font-size: 0.7rem;
+}
+
+.animate-spin {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Fix para autofill de Chrome en modo oscuro */
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+input:-webkit-autofill:active {
+  -webkit-box-shadow: 0 0 0 30px var(--bg-card-solid) inset !important;
+  -webkit-text-fill-color: var(--text-main) !important;
+}
+
+/* Dashboard Styles (Simple) */
+.dashboard-simple {
+  min-height: 100vh;
+  background-color: var(--bg-dark-void);
+}
+
+/* FIX: Global Modal Dark Glassmorphism */
+/* Se aplica a .modal-content de Bootstrap para sobreescribir el fondo blanco de serie */
+.modal-content,
+.glass-modal,
+.modal-glass-content {
+  background: var(--bg-card) !important;
+  border: 1px solid var(--glass-border) !important;
+  color: var(--text-main) !important;
+  box-shadow: var(--card-shadow) !important;
+  border-radius: 1.25rem !important;
+  transition: transform 0.2s ease-out, opacity 0.2s ease-out;
+}
+
+.modal-header {
+  border-bottom: 1px solid var(--glass-border) !important;
+}
+
+.modal-footer {
+  border-top: 1px solid var(--glass-border) !important;
+}
+
+/* FIX: Dropdown Menu Dark Glassmorphism */
+.dropdown-menu,
+.glass-dropdown {
+  background: var(--bg-card-solid) !important;
+  border: 1px solid var(--glass-border) !important;
+  box-shadow: var(--card-shadow) !important;
+  padding: 0.5rem !important;
+  border-radius: 0.75rem !important;
+}
+
+.dropdown-item {
+  color: var(--text-dim) !important;
+  border-radius: 0.5rem !important;
+  transition: all 0.2s ease !important;
+  padding: 0.6rem 1rem !important;
+  display: flex !important;
+  align-items: center !important;
+}
+
+.dropdown-item:hover {
+  background: var(--glass-bg) !important;
+  color: var(--text-main) !important;
+}
+
+.btn-circle-action {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex !important;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: rgba(255, 255, 255, 0.6);
+  transition: all 0.2s ease;
+  cursor: pointer;
+}
+
+.btn-circle-action:hover {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.2);
+  color: white;
+  transform: translateY(-2px);
+}

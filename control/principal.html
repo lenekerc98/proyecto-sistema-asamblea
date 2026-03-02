@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+	<!-- ESTILOS CSS -->
+	<style>
+	input{
+	text-align:center;
+	}
+	#con_1{
+	font-family: Times New Roman;
+	font-size:25px;
+	text-align:center;
+	}
+	#tit_1{
+	font-family:Times New Roman;
+	text-align:center;
+	font-size:40px;
+	margin-top:100px;
+	}
+	body {
+	font-family: 'Times New Roman', Times, serif;
+	margin: 30px;
+	background: linear-gradient(to right, #a0d8f1, #d4e9f1);
+	}
+	#btn_1{
+	text-align:center;
+	font-family:Times New Roman;
+	}
+	</style>
+	<!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="css/bootstrap.min.css" >
+	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.5/dist/js/bootstrap.bundle.min.js" integrity="sha384-k6d4wzSIapyDyv1kpU366/PK5hCdSbCRGRCMv+eplOQJWyd1fbcAu9OCUj5zNLiq" crossorigin="anonymous"></script>
+	<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.5/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-SgOJa3DmI69IUzQ2PVdRZhwQ+dy64/BUtbMJw1MZ8t5HZApcHrRKUc4W0kG879m7" crossorigin="anonymous">
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+	<!-- TITULO DE PAGINA -->
+	<title>Registro</title>
+</head>
+<body>
+	<h1 id="tit_1"><u>REGISTRO DE ACCIONISTA</u></h1>
+	<div class="form">
+		<!--FORMULARIO DE REGISTRO -->
+		<div class="form-group" id="con_1">
+			<input id="num_id" style="margin-top:10px;" type="number" placeholder="INGRESAR N°"><br>
+			<input id="nombre_id" style="margin-top:10px; text-transform:uppercase" placeholder="NOMBRE DE ACCIONISTA"><br>
+			<input id="cedula_id" style="margin-top:10px; text-transform:uppercase" placeholder="IDENTIFICACION"><br>
+			<input id="acciones_id" style="margin-top:10px" type="number" placeholder="ACCIONES" oninput="calcular()"><br>
+			<input id="porcentaje_id" style="margin-top:10px" placeholder="% DE ACCIONES" disabled><br>
+		</div>
+		<!-- BOTONES -->
+		<div id="btn_1">
+			<button id="registrar_id" onclick="registrar()" style="margin-top:25px;color:white;" type="button" class="btn btn-success" disabled>REGISTRAR</button>
+			<a href="index.html" id="buscar_id" style="margin-top:25px;" type="button" class="btn btn-secondary">BUSCAR</a>
+			<a href="preguntas.html" id="asistentes_id" style="margin-top:25px;color:white;" type="button" class="btn btn-info">PREGUNTAS</a><br>
+			<a href="php/listado_g.php" id="listado_id" style="margin-top:25px;" type="button" class="btn btn-primary">LISTADO GENERAL</a>
+			<a href="php/listado.php" id="listado_id" style="margin-top:25px; color:white; background:#77c2bd" type="button" class="btn">LISTADO ASISTENTES</a>
+			<a href="resultados.html" id="asistentes_id" style="margin-top:25px;color:white; background:#2da2cd;" type="button" class="btn btn-info">RESULTADOS</a><br>
+			<a href="porcentaje.html" id="asistentes_id" style="margin-top:25px;color:white; background:#4f918c;" type="button" class="btn btn-info">PORCENTAJE ASISTENCIAS</a><br>
+		</div>
+	</div>
+	<script type="text/javascript">
+		//FUNCION PARA REGISTRAR
+		function registrar(){
+			var numero = document.getElementById("num_id").value;
+			var nombre = document.getElementById("nombre_id").value;
+			var cedula = document.getElementById("cedula_id").value;
+			var acciones = document.getElementById("acciones_id").value;
+			var porcentaje = document.getElementById("porcentaje_id").value;
+			// VALIDACION DE CAMPOS VACIOS
+			if (cedula === "" || numero === "" || nombre === "" || acciones === "" || porcentaje === "") {
+				alert("COMPLETE TODOS LOS CAMPOS");
+				return;
+			}
+			$.ajax({
+			url:"php/registrar.php",
+			cache:false,
+			type:"POST",
+			data:"numero_server="+numero+"&nombre_server="+nombre+
+			"&cedula_server="+cedula+"&acciones_server="+acciones+"&porcentaje_server="+porcentaje,
+			success:function(data){
+				console.log(data);  
+				var obj = JSON.parse(data);
+				if(parseInt(obj.p_validar)==1){
+					alert(obj.p_mensaje);
+					location.reload();
+				}
+				else{
+					alert(obj.p_mensaje);
+				}	
+			}
+			});	
+		}
+		//FUNCION PARA CALCULAR EL VALOR AUTOMATICO
+		function calcular(){
+			var acciones = document.getElementById("acciones_id").value; //OBTENER EL DATO PARA DESPUES CALCULAR
+			var porcentaje = (acciones / 17657950) * 100; //CALCULO PARA OBTENER EL PORCENTAJE EN ACCIONES
+			document.getElementById("porcentaje_id").value = porcentaje.toFixed(3)+"%"; // MOSTRAR EL VALOR AUTOMATICAMENTE MIENTRAS SE DIGITE DATOS
+		}
+	</script>
+</body>
+</html>

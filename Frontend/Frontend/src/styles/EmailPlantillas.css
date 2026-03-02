@@ -1,0 +1,181 @@
+.quill-paper-theme {
+    /* Variables de Jodit para forzar fondo transparente / oscuro */
+    --jd-color-background-default: #0E1F2F !important;
+    --jd-color-panel: #071426 !important;
+
+    background-color: #0E1F2F !important;
+    border-radius: 0.5rem;
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+    overflow: hidden;
+    box-shadow: none;
+}
+
+.quill-paper-theme .jodit-container {
+    border: none !important;
+    background: transparent !important;
+    background-color: transparent !important;
+}
+
+.quill-paper-theme .jodit-workplace {
+    background: #0E1F2F !important;
+    background-color: #0E1F2F !important;
+}
+
+.quill-paper-theme .jodit-toolbar__box,
+.quill-paper-theme .jodit-toolbar,
+.quill-paper-theme .jodit-ui-group {
+    background: #071426 !important;
+    background-color: #071426 !important;
+}
+
+.quill-paper-theme .jodit-wysiwyg {
+    padding: 30px !important;
+    background: #0E1F2F !important;
+    background-color: #0E1F2F !important;
+    color: #ffffff !important;
+}
+
+/* Evitar bordes grises de la barra de herramientas de Jodit */
+.quill-paper-theme .jodit-toolbar__box {
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05) !important;
+}
+
+/* Status Bar inferior */
+.quill-paper-theme .jodit-status-bar,
+.quill-paper-theme .jodit-status-bar-link {
+    background: #071426 !important;
+    background-color: #071426 !important;
+    color: rgba(255, 255, 255, 0.5) !important;
+    border-top: 1px solid rgba(255, 255, 255, 0.05) !important;
+}
+
+.quill-paper-theme .jodit-status-bar a {
+    color: rgba(255, 255, 255, 0.5) !important;
+}
+
+/* Forzar texto claro en el editor para que contraste con el fondo oscuro */
+.quill-paper-theme .jodit-wysiwyg p,
+.quill-paper-theme .jodit-wysiwyg span,
+.quill-paper-theme .jodit-wysiwyg div,
+.quill-paper-theme .jodit-wysiwyg td,
+.quill-paper-theme .jodit-wysiwyg th,
+.quill-paper-theme .jodit-wysiwyg h1,
+.quill-paper-theme .jodit-wysiwyg h2,
+.quill-paper-theme .jodit-wysiwyg h3,
+.quill-paper-theme .jodit-wysiwyg h4,
+.quill-paper-theme .jodit-wysiwyg h5,
+.quill-paper-theme .jodit-wysiwyg h6,
+.quill-paper-theme .jodit-wysiwyg li {
+    color: #ffffff !important;
+}
+
+
+/* 📂 MODO LIENZO PURO: Respetar 100% el formato original del portapapeles */
+.quill-paper-theme .jodit-wysiwyg table {
+    border-collapse: collapse !important;
+    width: auto !important;
+    /* Dejar que la firma mande */
+    max-width: none !important;
+    margin: 0 !important;
+}
+
+.quill-paper-theme .jodit-wysiwyg td,
+.quill-paper-theme .jodit-wysiwyg th {
+    border: 1px dotted rgba(255, 255, 255, 0.15) !important;
+    /* Guía muy sutil para ver celdas y no deformar diseño */
+    padding: 3px !important;
+    white-space: normal !important;
+    word-break: normal !important;
+    vertical-align: top;
+}
+
+/* Solo guías visuales que no se envían en el correo */
+.quill-paper-theme .jodit-wysiwyg td {
+    outline: 1px dashed rgba(255, 255, 255, 0.05);
+}
+
+.quill-paper-theme .jodit-wysiwyg img {
+    display: inline-block;
+    max-width: none !important;
+    /* No forzar tamaños */
+}
+
+/* Jodit Placeholder visible en fondo oscuro */
+.quill-paper-theme .jodit-placeholder {
+    color: rgba(255, 255, 255, 0.35) !important;
+    opacity: 1 !important;
+    z-index: 10;
+}
+
+.btn-gradient-primary {
+    background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+    transition: all 0.3s ease;
+}
+
+.btn-gradient-success {
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    transition: all 0.3s ease;
+}
+
+.hover-scale:hover {
+    transform: scale(1.02);
+}
+
+.glass-modal .modal-content {
+    background: rgba(15, 23, 42, 0.9) !important;
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+    border-radius: 1.5rem;
+}
+
+.badge-primary-glass {
+    background: rgba(59, 130, 246, 0.1);
+    color: #60a5fa;
+    border: 1px solid rgba(59, 130, 246, 0.2);
+}
+
+/* Estilos para la lista de destinatarios */
+.destinatarios-scroll-area::-webkit-scrollbar {
+    width: 6px;
+}
+
+.destinatarios-scroll-area::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.destinatarios-scroll-area::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+}
+
+.destinatarios-scroll-area::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.2);
+}
+
+.hover-bg-white-5:hover {
+    background-color: rgba(255, 255, 255, 0.05);
+}
+
+.transition-all {
+    transition: all 0.2s ease;
+}
+
+.letter-spacing-1 {
+    letter-spacing: 0.05em;
+}
+
+.custom-checkbox-glass .form-check-input {
+    background-color: rgba(255, 255, 255, 0.05) !important;
+    border-color: rgba(255, 255, 255, 0.1) !important;
+    cursor: pointer;
+}
+
+.custom-checkbox-glass .form-check-input:checked {
+    background-color: #3b82f6 !important;
+    border-color: #3b82f6 !important;
+}
+
+.extra-small {
+    font-size: 0.7rem !important;
+}

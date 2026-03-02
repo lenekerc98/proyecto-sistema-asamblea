@@ -1,0 +1,393 @@
+.sidebar-container {
+    width: 280px;
+    height: 100dvh;
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 1040;
+    transition: transform 0.2s ease, width 0.2s ease;
+}
+
+.sidebar-glass {
+    background: var(--bg-card);
+    border-right: 1px solid var(--glass-border);
+    height: 100dvh;
+    display: flex;
+    flex-direction: column;
+}
+
+.sidebar-header {
+    padding: 2rem 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    min-height: 96px;
+    box-sizing: border-box;
+}
+
+.logo-icon {
+    color: #3b82f6;
+    filter: drop-shadow(0 0 8px rgba(59, 130, 246, 0.5));
+}
+
+.sidebar-title {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--text-main);
+    margin: 0;
+    letter-spacing: -0.025em;
+}
+
+.sidebar-nav {
+    flex: 1;
+    padding: 1.5rem 1rem;
+    overflow-y: auto;
+    overflow-x: hidden;
+}
+
+@media (min-width: 992px) {
+    .sidebar-nav {
+        padding-top: 80px;
+        /* Compensation for fixed TopNavbar after removing Sidebar header */
+    }
+}
+
+/* Scrollbar Styling para la navegación lateral */
+.sidebar-nav::-webkit-scrollbar {
+    width: 6px;
+}
+
+.sidebar-nav::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.sidebar-nav::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.15);
+    border-radius: 8px;
+}
+
+.sidebar-nav::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.3);
+}
+
+.nav-section-title {
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    color: var(--text-dim);
+    margin: 1.5rem 0 0.75rem 0.75rem;
+    letter-spacing: 0.05em;
+}
+
+.nav-item {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.875rem 1rem;
+    color: var(--text-main);
+    text-decoration: none;
+    border-radius: 0.75rem;
+    margin-bottom: 0.25rem;
+    transition: background-color 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+    font-weight: 500;
+}
+
+.nav-item:hover {
+    background: rgba(255, 255, 255, 0.05);
+    color: #fff;
+}
+
+.nav-item.active {
+    background: linear-gradient(135deg, rgba(59, 130, 246, 0.2) 0%, rgba(37, 99, 235, 0.1) 100%);
+    color: #3b82f6;
+    border-left: 3px solid #3b82f6;
+}
+
+.sidebar-footer {
+    padding: 1.5rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    background: rgba(0, 0, 0, 0.2);
+}
+
+.user-profile {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 1rem;
+}
+
+.user-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    font-weight: 700;
+    font-size: 0.875rem;
+    border: 2px solid rgba(255, 255, 255, 0.1);
+}
+
+.user-info {
+    flex: 1;
+    overflow: hidden;
+}
+
+.user-name {
+    display: block;
+    color: var(--text-main);
+    font-size: 0.875rem;
+    font-weight: 600;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.user-role {
+    display: block;
+    color: var(--text-dim);
+    font-size: 0.75rem;
+    text-transform: capitalize;
+}
+
+.btn-logout {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 0.75rem;
+    background: rgba(239, 68, 68, 0.1);
+    color: #ef4444;
+    border: 1px solid rgba(239, 68, 68, 0.2);
+    border-radius: 0.75rem;
+    font-weight: 600;
+    font-size: 0.875rem;
+    transition: background-color 0.15s ease, color 0.15s ease, transform 0.15s ease;
+    cursor: pointer;
+}
+
+.btn-logout:hover {
+    background: #ef4444;
+    color: #fff;
+}
+
+/* Ajuste para el contenido principal considerando el Navbar en Mobile/Desktop */
+.main-content {
+    margin-left: 280px;
+    min-height: 100vh;
+    padding-top: 70px;
+    /* Compensa la altura del TopNavbar */
+    transition: margin-left 0.2s ease;
+}
+
+/* Botón hamburguesa móvil (oculto en desktop) */
+.mobile-menu-btn {
+    position: fixed;
+    top: 1rem;
+    left: 1rem;
+    z-index: 1002;
+    background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+    border: none;
+    border-radius: 0.5rem;
+    padding: 0.5rem;
+    color: white;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    display: none;
+    cursor: pointer;
+    transition: all 0.15s ease;
+}
+
+.mobile-menu-btn:hover {
+    transform: scale(1.05);
+}
+
+/* Sombra/overlay detrás del menú en celulares */
+.sidebar-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.65);
+    z-index: 999;
+    opacity: 1;
+    transition: opacity 0.15s ease;
+}
+
+@media (max-width: 991.98px) {
+    .sidebar-container {
+        transform: translate3d(-100%, 0, 0);
+        padding-top: 70px;
+        /* Para que inicie debajo de la Navbar nueva */
+        transition: transform 0.25s cubic-bezier(0.2, 0.8, 0.2, 1);
+    }
+
+    .sidebar-container.open {
+        transform: translate3d(0, 0, 0);
+    }
+
+    .main-content {
+        margin-left: 0;
+    }
+
+    /* El botón móvil flotante original ya no se usa, pero mantenemos por si acaso */
+    .mobile-menu-btn {
+        display: none;
+    }
+}
+
+.submenu-container {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    padding-left: 2rem;
+    display: flex;
+    flex-direction: column;
+}
+
+.submenu-container.open {
+    max-height: 200px;
+    margin-top: 0.25rem;
+}
+
+.sub-nav-item {
+    display: flex;
+    align-items: center;
+    padding: 0.6rem 1rem;
+    color: rgba(255, 255, 255, 0.5);
+    text-decoration: none;
+    border-radius: 0.75rem;
+    font-size: 0.85rem;
+    transition: color 0.15s ease, background-color 0.15s ease;
+    position: relative;
+}
+
+.sub-nav-item::before {
+    content: '';
+    position: absolute;
+    left: -0.5rem;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.2);
+    transition: all 0.2s;
+}
+
+.sub-nav-item:hover {
+    color: rgba(255, 255, 255, 0.9);
+}
+
+.sub-nav-item:hover::before {
+    background: #3b82f6;
+}
+
+.sub-nav-item.active {
+    color: #3b82f6;
+    font-weight: 600;
+}
+
+.sub-nav-item.active::before {
+    background: #3b82f6;
+    box-shadow: 0 0 8px rgba(59, 130, 246, 0.5);
+}
+
+.nav-item-collapsible {
+    background: transparent;
+    border: none;
+    width: 100%;
+    text-align: left;
+    cursor: pointer;
+}
+
+.nav-item-collapsible.active-parent {
+    color: #fff;
+}
+
+.nav-item-collapsible:focus {
+    outline: none;
+}
+
+/* ESTADO COLAPSADO (Desktop) */
+@media (min-width: 992px) {
+    .sidebar-container.collapsed {
+        width: 80px;
+    }
+
+    .main-content.collapsed {
+        margin-left: 80px;
+    }
+
+    .sidebar-container.collapsed .sidebar-title,
+    .sidebar-container.collapsed .nav-item span,
+    .sidebar-container.collapsed .sub-nav-item span,
+    .sidebar-container.collapsed .user-info,
+    .sidebar-container.collapsed .btn-logout span,
+    .sidebar-container.collapsed .arrow-icon {
+        display: none;
+    }
+
+    .sidebar-container.collapsed .nav-section-title {
+        visibility: hidden;
+        white-space: nowrap;
+        overflow: hidden;
+        opacity: 0;
+        pointer-events: none;
+    }
+
+    .sidebar-container.collapsed .sidebar-header {
+        padding: 2rem 0;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .sidebar-container.collapsed .sidebar-header .btn {
+        margin: 0;
+        padding: 0;
+    }
+
+    .sidebar-container.collapsed .nav-item {
+        justify-content: center;
+        padding: 0.875rem 0;
+    }
+
+    .sidebar-container.collapsed .sub-nav-item {
+        justify-content: center;
+        padding: 0.6rem 0;
+    }
+
+    .sidebar-container.collapsed .sidebar-footer {
+        padding: 1.5rem 0;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .sidebar-container.collapsed .btn-logout {
+        width: 40px;
+        height: 40px;
+        padding: 0;
+        justify-content: center;
+    }
+
+    .sidebar-container.collapsed .user-profile {
+        justify-content: center;
+        margin-bottom: 0.5rem;
+    }
+
+    .sidebar-container.collapsed .sub-nav-item::before {
+        display: none;
+    }
+
+    .sidebar-container.collapsed .user-avatar {
+        min-width: 40px;
+        min-height: 40px;
+    }
+
+    .sidebar-container.collapsed .submenu-container {
+        padding-left: 0;
+    }
+}

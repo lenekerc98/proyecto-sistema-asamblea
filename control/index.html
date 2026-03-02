@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+	<meta charset="UTF-8">
+	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.5/dist/js/bootstrap.bundle.min.js"></script>
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+	<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.5/dist/css/bootstrap.min.css" rel="stylesheet">
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+	<title>Buscar</title>
+	<style>
+		input {
+			font-family: Times New Roman;
+			text-align: center;
+		}
+		body {
+			font-family: 'Times New Roman', Times, serif;
+			margin: 30px;
+			background: linear-gradient(to right, #c5cae9, #81d4fa);
+
+		}
+		.contenedor {
+			display: flex;
+			flex-wrap: wrap;
+			gap: 20px;
+			border: 2px solid black;
+			padding: 20px;
+			justify-content: space-between;
+		}
+		.busqueda {
+			display: flex;
+			flex-direction: column;
+			gap: 10px;
+			width: 25%;
+		}
+		.busqueda input[type="text"] {
+			padding: 8px;
+			font-size: 14px;
+		}
+		.busqueda button {
+			padding: 10px;
+			font-weight: bold;
+			border-radius: 10px;
+			background-color: #f0f0f0;
+			cursor: pointer;
+		}
+		.listado {
+			border: 1px solid black;
+			padding: 10px;
+			height: 460px;
+			overflow-y: auto;
+			background-color: #fafafa;
+		}
+		.datos {
+			flex-grow: 1;
+			border: 1px solid black;
+			padding: 10px;
+			min-height: 300px;
+			background-color: #f9f9f9;
+			position: relative;
+		}
+		.acciones {
+			display: flex;
+			gap: 20px;
+			margin-top: 20px;
+		}
+		.acciones button {
+			padding: 10px 20px;
+			font-weight: bold;
+			cursor: pointer;
+		}
+		#edit_guard {
+			text-align: center;
+			font-family: Times New Roman;
+		}
+		#registrar_asist {
+			text-align: center;
+			font-family: Times New Roman;
+			background: #d8ae53;
+			color: white;
+		}
+		#buscar_id {
+			text-align: center;
+			font-family: Times New Roman;
+			background: #d5d5d5;
+			color: black;
+		}
+		#buscador {
+			font-family: Times New Roman;
+			font-size: 15px;
+			text-transform: uppercase;
+		}
+	</style>
+</head>
+<body>
+	<!-- CONTENEDOR GENERAL -->
+	<div class="contenedor">
+		<div class="d-flex align-items-center justify-content-center mb-4 gap-2">
+			<a href="principal.html" class="btn btn-outline-dark">
+			<i class="fas fa-arrow-left"></i>
+			</a>
+		</div>
+		<!-- APARTADO DE BUSQUEDA -->
+		<div class="busqueda">
+			<input type="text" id="buscador"  placeholder="INGRESE DATOS PARA BUSCAR">
+			<div class="listado" id="resultados_busqueda">
+				<ul id="lista_resultados" style="list-style: none; padding-left: 0;"></ul>
+			</div>
+		</div>
+		<!-- APARTADO DE DATOS OBTENIDO POR MEDIO DE LA BUSQEUJDA -->
+		<div style="flex: 1;">
+			<div class="datos">
+				<div class="form-group">
+					<input id="num_id" type="number" style="margin-top:10px;font-size:25px;" placeholder="INGRESAR N°" disabled><br>
+					<input id="nombre_id" style="margin-top:10px;font-size:25px; width:500px;" placeholder="NOMBRE DE ACCIONISTA" disabled><br>
+					<input id="cedula_id" style="margin-top:10px;font-family: Times New Roman; font-size:25px; text-align:center;" placeholder="IDENTIFICACION" disabled><br>
+					<input id="acciones_id" style="margin-top:10px;font-size:25px;" placeholder="ACCIONES" disabled><br>
+					<input id="porcentaje_id" style="margin-top:10px;font-size:25px;" placeholder="% DE ACCIONES" disabled><br>
+					<div style=" margin-top:30px" class="form-check">
+						<input class="form-check-input" type="checkbox" value="" id="checkChecked" disabled>
+						<label class="form-check-label" for="checkChecked">ASISTIÓ</label>
+					</div>
+				</div>
+			</div>
+			 <!-- CONTENEDOR PARA LA PREGUNTA A USUARIO -->
+			<div id="extra_campos" style="position: absolute; right: 80px; top: 270px; display: none; width: 300px;">
+				<label class="form-label">¿Desea añadir una Observación?</label><br>
+				<button type="button" class="btn btn-outline-primary btn-sm" onclick="mostrarCampoObservacion(true)">Sí</button>
+				<button type="button" class="btn btn-outline-secondary btn-sm" onclick="mostrarCampoObservacion(false)">No</button>
+				<div id="campo-observacion" style="display: none; margin-top: 10px;">
+					<input type="text" placeholder="Escriba su observación" id="observaciones" class="form-control" disabled>
+				</div>
+			</div>
+			<!-- BOTONES -->
+			<div class="acciones">
+				<button id="edit_guard" onclick="editar_guardar()" type="button" class="btn btn-success" disabled>EDITAR / GUARDAR</button>
+				<button id="registrar_asist" onclick="guardarDatos()" type="button" class="btn" disabled>REGISTRAR ASISTENCIA</button>
+				<button id="eliminar_asist" onclick="eliminarAsistencia()" type="button" class="btn" style="background:#79ff21; color:white;" disabled>ELIMINAR ASISTENCIA</button>
+			</div>
+			<!-- CONTADOR DE ASISTENCIA -->
+			<div class="mt-4">
+				<h5 style="font-family: Times New Roman;">Porcentaje Total de Asistencia:</h5>
+				<div class="progress" style="height: 45px;">
+					<div id="barra_asistencia" class="progress-bar progress-bar-striped bg-success" role="progressbar" style="width: 0%; font-size:35px;">0%</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<script type="text/javascript">
+		// CODIGO PARA VALIDAR EL BUSCADOR CON LA TECLA ENTER
+		document.getElementById("buscador").addEventListener("keyup", function (event) {
+			if (event.key === "Enter") {
+				const valor = this.value.trim();
+			if (valor !== "") {
+				buscar();
+			} else {
+				location.reload(); // REINICIA EL PROGRAMA SI EL CAMPO ESTÁ VACÍO
+				}
+			}
+		});
+		//FUNCION PARA REALIZAR LA BUSQUEDA
+		function buscar() {
+			var buscador = document.getElementById("buscador").value;
+			if (buscador === "") {
+			alert("INGRESE LA IDENTIFICACION");
+			return;
+			}
+			// ENVIA DATOS AL SERVIDOR CON AJAX
+			$.ajax({
+			url: "php/buscarp.php",
+			type: "POST",
+			data: { buscador_server: buscador },
+			success: function(data) {
+			  try {
+				var obj = JSON.parse(data);
+				var lista = document.getElementById("lista_resultados");
+				lista.innerHTML = "";
+				if (obj.length > 0) {
+				  obj.forEach(function(item) {
+					var li = document.createElement("li");
+					li.innerHTML = `<button class="btn btn-outline-dark btn-sm w-100 text-start mb-1" onclick='llenarCampos(${JSON.stringify(item)})'>${item.numero} - ${item.nombre}</button>`;
+					lista.appendChild(li);
+				  });
+				} else {
+				  lista.innerHTML = "<li>No se encontraron resultados.</li>";
+				}
+			  } catch (e) {
+				console.log("Error de JSON: ", data);
+			  }
+			}
+			});
+		}
+		// FUNCION PARA LLENAR CAMPOS VACIOS UNA VEZ SE SELECCIONE AL ACCIONISTA EN CUESTION
+		function llenarCampos(item) {
+			// LLENAR LOS CAMPOS CON LOS DATOS RECIBIDOS
+			document.getElementById("cedula_id").value = item.cedula;
+			document.getElementById("num_id").value = item.numero;
+			document.getElementById("nombre_id").value = item.nombre;
+			document.getElementById("acciones_id").value = item.acciones;
+			document.getElementById("porcentaje_id").value = item.porcentaje + "%";
+			// MARCAR EL CHECKBOX SI ASISTIO Y HABILITARLO
+			const checkbox = document.getElementById("checkChecked");
+			checkbox.disabled = false;
+			checkbox.checked = item.asistio == 1;
+			// CAMPO DE OBSERVACION
+			const observacionInput = document.getElementById("observaciones");
+			observacionInput.value = item.observaciones || "";
+			observacionInput.disabled = true;
+			if (item.asistio == 1) {
+ 				document.getElementById("extra_campos").style.display = "block";
+  				document.getElementById("campo-observacion").style.display = "block";
+			}
+			// MOSTRAR EL CONTENEDOR DEL CAMPO DE OBSERVACION
+			document.getElementById("campo-observacion").style.display = "block";
+			// BOTONES
+			const btnEditar = document.getElementById("edit_guard");
+			const btnRegistrar = document.getElementById("registrar_asist");
+			const btnEliminar = document.getElementById("eliminar_asist");
+
+			if (item.asistio == 1) {
+				// YA ASISITIO ESTO SOLO ACTIVA EL EDITADOR
+				btnEditar.disabled = false;
+				btnEliminar.disabled = false;
+				btnRegistrar.disabled = true;
+			} else {
+				// NO HA ASISTIDO Y ESTO SOLO PERMITE REGISTRARLO EN LA LISTA DE ASISTENCIA
+				btnEditar.disabled = true;
+				btnEliminar.disabled = true;
+				btnRegistrar.disabled = false;
+			}
+			// REINICIA LOS ESTADOS DEL BOTON
+			modoEdicion = false;
+			btnEditar.innerText = "EDITAR / GUARDAR";
+		}
+		let modoEdicion = false;
+		//FUNCION QUE EDITA Y GUARDA LAS OBSERVACIONES 
+		function editar_guardar() {
+			const observacion = document.getElementById("observaciones");
+			const cedula = document.getElementById("cedula_id").value;
+
+			if (!cedula) {
+				alert("DEBE DE SELECCIONAR UN ACCIONISTA PRIMERO");
+				return;
+			}
+			if (!modoEdicion) {
+				// PRIMER CLIC PARA ACTIVAR LA EDICION
+				observacion.disabled = false;
+				observacion.focus();
+				modoEdicion = true;
+				document.getElementById("edit_guard").innerText = "GUARDAR";
+			} else {
+				// SEGUNDO CLIC PARA GUARDAR CAMBIOS
+				const nuevaObservacion = observacion.value;
+				$.ajax({
+				url: "php/actualizar_observacion.php",
+				type: "POST",
+				data: {
+				cedula: cedula,
+				observacion: nuevaObservacion
+				},
+				success: function (response) {
+					try {
+						const obj = JSON.parse(response);
+						alert(obj.message || "Observación actualizada correctamente.");
+					} catch (e) {
+						alert("ERROR AL ACTUALIZAR LA OBSERCACION");
+					}
+					// REINICIAR TODO
+					modoEdicion = false;
+					document.getElementById("edit_guard").innerText = "EDITAR / GUARDAR";
+					reiniciarFormulario();
+				}
+				});
+			}
+		}
+		// FUNCION PARA GUARDAR DATOS DENTRO DE LA TABLA ASISTENCIA
+		function guardarDatos() {
+			var cedula = document.getElementById("cedula_id").value;
+			var num = document.getElementById("num_id").value;
+			var nombre = document.getElementById("nombre_id").value;
+			var acciones = document.getElementById("acciones_id").value;
+			var porcentaje = parseFloat(document.getElementById("porcentaje_id").value).toFixed(3);
+			var asistio = document.getElementById("checkChecked").checked ? 1 : 0;
+			// VALIDAR CAMPOS
+			if (cedula === "" || num === "" || nombre === "" || acciones === "" || porcentaje == "") {
+				alert("Por favor complete todos los campos.");
+				return;
+			}
+			
+			// VALIDACION DE SI ASISTIO
+			if (!document.getElementById("checkChecked").checked) {
+				alert("SOLO SE PUEDE REGISTRAR ASISTENCIA SI SE MARCA LA CASILLA CORRESPONDIENTE");
+				return;
+			}
+			var observaciones = document.getElementById("observaciones").value;
+			// ENVIAR DATOS POR AJAX
+			$.ajax({
+				url: "php/registrar_asistencia.php",
+				type: "POST",
+				data: {
+					cedula: cedula,
+					num: num,
+					nombre: nombre,
+					acciones: acciones,
+					porcentaje: porcentaje,
+					asistio: asistio,
+					observaciones: observaciones
+				},
+				success: function(response) {
+					console.log(response);  // VERIFICA LA RESPUESTA DEL SERVIDOR
+					var obj = JSON.parse(response);
+					alert(obj.message);
+					// ACTUALIZAR LA BARRA DE PROGRESO
+					obtenerPorcentajeAsistencia(); // ACTUALIZA EL PORCENTAJE TOTAL DESPUES DE GUARDARSE
+					
+					// LIMPIAR CAMPOS
+					document.getElementById("cedula_id").value = "";
+					document.getElementById("num_id").value = "";
+					document.getElementById("nombre_id").value = "";
+					document.getElementById("acciones_id").value = "";
+					document.getElementById("porcentaje_id").value = "";
+					document.getElementById("checkChecked").checked = false;
+					document.getElementById("buscador").value = "";
+					// DESACTIVAR CAMPOS
+					document.getElementById("num_id").disabled = true;
+					document.getElementById("nombre_id").disabled = true;
+					document.getElementById("acciones_id").disabled = true;
+					document.getElementById("porcentaje_id").disabled = true;
+					if (document.getElementById("lista_resultados")) {
+						lista_resultados.innerHTML = "";
+					}
+					// LIMPIAR CAMPOS ADICIONALES
+					document.getElementById("observaciones").value = "";
+					ocultarTodoExtra();
+					reiniciarFormulario(); // Limpia todo
+					document.getElementById("registrar_asist").disabled = true; 
+				}
+			});
+		}
+		// FUNCION PARA OBTENER EL PORCENTAJE DE ASISTENCIA
+		function obtenerPorcentajeAsistencia() {
+			$.ajax({
+				url: "php/calcular_porcentaje_asistencia.php",
+				type: "GET",  // USAMOS GET PORQUE SE OBTIENE DATOS
+				success: function(response) {
+					console.log(response);  // Verifica lo que devuelve el servidor
+					if (response.porcentaje_total !== undefined) {
+						// ACTUALIZAR LA BARRA DE PROGRESO Y EL TEXTO DENTRO DE LA MISMA
+						var porcentaje = response.porcentaje_total;
+						$('#barra_asistencia').css('width', porcentaje + '%').text(porcentaje + '%');
+					} else {
+						alert("No se pudo obtener el porcentaje de asistencia.");
+					}
+				},
+				error: function(xhr, status, error) {
+					console.error("Error de AJAX:", error);
+					alert("Hubo un problema al comunicarse con el servidor.");
+				}
+			});
+		}
+
+
+		// LLAMAR A LA FUNCION PARA ACTUALIZAR EL PORCENTAJE DE LA BARRA
+		$(document).ready(function() {
+			obtenerPorcentajeAsistencia();  // OBTENER EL PORCENTAJE TOTAL AL ENTRAR EN LA PAGINA
+		});
+
+		//CODIGO PARA ACTIVAR CAMPOS ADICIONALES
+		const checkboxAsistio = document.getElementById('checkChecked');
+		const empresaCampos = document.getElementById('empresa-campos');
+		const personaObservacion = document.getElementById('persona-observacion');
+		const campoObservacion = document.getElementById('campo-observacion');
+		const contenedorExtra = document.getElementById('extra_campos');
+		const panelTipo = document.getElementById('panel-tipo');
+		checkboxAsistio.addEventListener('change', function () {
+			if (this.checked) {
+				contenedorExtra.style.display = "block";
+			} else {
+				ocultarTodoExtra();
+			}
+		});	
+		//FUNCION PARA OCULTAR CAMPOS QUE SE HABILITA MEDIANTE ACCIONES PREVIAS
+		function ocultarTodoExtra() {
+			contenedorExtra.style.display = "none";
+			campoObservacion.style.display = "none";
+			document.getElementById("observaciones").value = "";
+		}
+		//FUNCION PARA MOSTRAR LOS CAMPOS OCULTOS
+		function mostrarCampoObservacion(mostrar) {
+			const campo = document.getElementById('campo-observacion');
+			const input = document.getElementById('observaciones');
+			if (mostrar) {
+				campo.style.display = "block";
+				input.disabled = false; // SI
+				input.focus();
+			} else {
+				campo.style.display = "block";
+				input.value = "Sin Novedad";
+				input.disabled = true; // NO
+			}
+		}
+		// FUNCION PARA ELIMINAR ASISTENCIA DE UN ACCIONISTA
+		function eliminarAsistencia() {
+			var cedula = document.getElementById("cedula_id").value;
+			if (!cedula) {
+				alert("Debe seleccionar un accionista primero.");
+				return;
+			}
+			
+			if (!confirm("¿Estás seguro que deseas eliminar la asistencia de este accionista?")) {
+				return;
+			}
+
+			$.ajax({
+				url: "php/eliminar_asistencia.php",
+				type: "POST",
+				data: { cedula: cedula },
+				success: function(response) {
+					try {
+						const obj = JSON.parse(response);
+						alert(obj.message || "Asistencia eliminada correctamente.");
+
+						// REINICIA LA UI
+						reiniciarFormulario();
+						obtenerPorcentajeAsistencia(); // ACTUALIZA EL PROGRESO
+
+					} catch (e) {
+						alert("Error al procesar la respuesta del servidor.");
+					}
+				},
+				error: function(xhr, status, error) {
+					console.error("Error al eliminar asistencia:", error);
+					alert("Ocurrió un error al intentar eliminar la asistencia.");
+				}
+			});
+		}
+
+		
+		//FUNCION PARA REINCIAR EL FORMULARIO UNA VEZ HECHO LO REQUERIDO 
+		function reiniciarFormulario() {
+			document.getElementById("cedula_id").value = "";
+			document.getElementById("num_id").value = "";
+			document.getElementById("nombre_id").value = "";
+			document.getElementById("acciones_id").value = "";
+			document.getElementById("porcentaje_id").value = "";
+			document.getElementById("checkChecked").checked = false;
+			document.getElementById("checkChecked").disabled = true;
+			document.getElementById("edit_guard").disabled = true;
+			document.getElementById("edit_guard").innerText = "EDITAR / GUARDAR";
+			document.getElementById("observaciones").value = "";
+			document.getElementById("observaciones").disabled = true;
+			document.getElementById("buscador").value = "";
+			document.getElementById("eliminar_asist").disabled = true;
+			lista_resultados.innerHTML = "";
+			ocultarTodoExtra();
+		}
+	</script>
+</body>
+</html>

@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.5/dist/js/bootstrap.bundle.min.js" integrity="sha384-k6d4wzSIapyDyv1kpU366/PK5hCdSbCRGRCMv+eplOQJWyd1fbcAu9OCUj5zNLiq" crossorigin="anonymous"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.5/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-SgOJa3DmI69IUzQ2PVdRZhwQ+dy64/BUtbMJw1MZ8t5HZApcHrRKUc4W0kG879m7" crossorigin="anonymous">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script> <!-- INCLUIR LIBRERIA CHART.JS -->
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels"></script> <!-- INCLUIR EL PLUGIN PARA ETIQUETAS DE DATOS -->
+    <title>Resultados</title>
+    <style>
+        body {
+            font-family: 'Times New Roman', Times, serif;
+            background: white;
+        }
+        .chart-container {
+            position: relative;
+            height: 300px;
+        }
+        #resultados-section {
+            display: none;
+        }
+        h1 {
+            text-align: center;
+        }
+        .centered-chart .chart-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 400px;
+        }
+        .centered-chart .chart-container {
+            width: 100% !important;
+        }
+        .chart-container canvas {
+            max-width: 500px;
+            width: 100%;
+        }
+		#preguntaSelect {
+			width: 100%; 
+			font-size: 18px; 
+			white-space: normal; 
+			padding: 10px;
+		}
+
+		#preguntaSelect option {
+			white-space: normal; 
+			padding: 8px;
+			line-height: 1.5;
+		}
+
+		.form-control {
+			max-width: 100%;
+		}
+    </style>
+</head>
+<body>
+    <div class="d-flex align-items-center justify-content-center mb-4 gap-2">
+        <a href="principal.html" class="btn btn-outline-dark"><i class="fas fa-arrow-left"></i></a>
+        <u><h1 id="tituloPregunta" style="font-family:Times New Roman; font-size:40px;">RESULTADOS</h1></u>
+    </div>
+    <div>
+        <div class="form-group">
+            <select class="form-select" id="preguntaSelect" style="font-family:Times New Roman;font-size:16px">
+                <option selected disabled>Seleccione la pregunta</option>
+                <option value="general">Resultados Generales</option>
+				<option id="pregunta_1" value="1">1. ¿Está de acuerdo en aprobar el primer punto de orden del día, el cual trata de: Conocer y resolver sobre los informes de Directorio, Gerente General, Comisario Principal, Auditores externos, y del Fideicomiso Landuni, respecto del ejercicio económico 2024?</option>
+				<option id="pregunta_2" value="2">2. ¿Está de acuerdo en aprobar el segundo punto de orden del día, el cual trata de: Conocer y resolver sobre los estados financieros de la compañía y sobre el destino de las utilidades, respecto del ejercicio económico 2024?</option>
+				<option id="pregunta_3" value="3">3.1. ¿Está de acuerdo en aprobar el tercer punto de orden del día, con base en la lista (de nombres) presentada ante la Junta General,  el cual trata de: Conocer y resolver sobre el nombramiento y designación de las calidades estatutarias de Presidente, Vicepresidente, Gerente General, Directores Principales, Directores Suplentes, Comisario Principal y Comisario Suplente de la compañía?</option>
+				<option id="pregunta_4" value="4">3.2. ¿Está de acuerdo en aprobar el tercer punto de orden del día, con base en las listas (de nombres) presentadas ante la Junta General, el cual trata de: Conocer y resolver sobre el nombramiento y designación de las calidades estatutarias de Presidente, Vicepresidente, Gerente General, Directores Principales, Directores Suplentes, Comisario Principal y Comisario Suplente de la compañía?</option>
+				<option id="pregunta_5" value="5">4. ¿Está de acuerdo en aprobar el cuarto punto de orden del día, el cual trata de: Designar a la firma de Auditores Externos (expuesta ante la Junta General) para el ejercicio económico 2025, y autorizar a la Gerencia General para que celebre el respectivo contrato?</option>
+				<option id="pregunta_6" value="6">5. ¿Está de acuerdo en aprobar el quinto punto de orden del día, el cual trata de: Designar a dos miembros comisionados (expuestos ante la Junta General) para la suscripción y aprobación del acta de sesión?</option>
+            </select>
+        </div>
+        <div class="container" id="resultados-section" style="margin-top: 50px;">
+            <div class="row">
+                <div class="col-md-6">
+                    <h1>PREGUNTA 1</h1>
+                    <div class="chart-container">
+                        <canvas id="barChart1"></canvas>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <h1>PREGUNTA 2</h1>
+                    <div class="chart-container">
+                        <canvas id="barChart2"></canvas>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-6">
+                    <h1>PREGUNTA 3</h1>
+                    <div class="chart-container">
+                        <canvas id="barChart3"></canvas>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <h1>PREGUNTA 3.</h1>
+                    <div class="chart-container">
+                        <canvas id="barChart4"></canvas>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-6">
+                    <h1>PREGUNTA 4</h1>
+                    <div class="chart-container">
+                        <canvas id="barChart5"></canvas>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <h1>PREGUNTA 5</h1>
+                    <div class="chart-container">
+                        <canvas id="barChart6"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        $(document).ready(function() {
+            $.ajax({
+                url: 'php/obtener_datos.php',
+                type: 'GET',
+                data: { pregunta_id: 0 },
+                success: function(data) {
+                    $('#resultados-section').show();
+                    $('#resultados-section .col-md-6').hide();
+
+                    $('#preguntaSelect').on('change', function () {
+                        const valor = $(this).val();
+                        if (valor === 'general') {
+                            $('#tituloPregunta').text('RESULTADOS GENERALES');
+                            $('#resultados-section .col-md-6, #resultados-section .col-md-12').each(function () {
+                                $(this).show().removeClass('col-md-12 centered-chart').addClass('col-md-6');
+                            });
+                        } else {
+                            $('#resultados-section .col-md-6').hide();
+                            const chartContainer = $('#barChart' + valor).closest('.col-md-6');
+                            chartContainer.show().removeClass('col-md-6').addClass('col-md-12 centered-chart');
+                            $('#resultados-section .col-md-6, #resultados-section .col-md-12').not(chartContainer).each(function () {
+                                $(this).removeClass('col-md-12 centered-chart').addClass('col-md-6').hide();
+                            });
+                            $('#tituloPregunta').text('RESULTADOS INDIVIDUALES');
+                        }
+                    });
+
+                    console.log(data);
+                    try {
+                        var responseData = JSON.parse(data);
+                        for (var i = 0; i < responseData.length; i++) {
+                            var questionData = responseData[i];
+                            var labels = ['Sí', 'No', 'Blanco'];
+                            var values = [
+                                Number(questionData.Voto_Si) || 0,
+                                Number(questionData.Voto_No) || 0,
+                                Number(questionData.Voto_Blanco) || 0
+                            ];
+
+                            // Cambiar las etiquetas dependiendo de la pregunta seleccionada
+                            if (i === 2) {
+                                labels = ['Lista A', 'Nulo', 'Blanco'];  // Pregunta 3
+                            } else if (i === 3) {
+                                labels = ['Lista A', 'Lista B', 'Blanco'];  // Pregunta 4
+                            }
+
+                            var totalVotes = values.reduce((a, b) => a + b, 0);
+                            var percentages = values.map(function(vote) {
+                                return totalVotes > 0 ? ((vote / totalVotes) * 100).toFixed(2) : 0;
+                            });
+
+                            var ctx = document.getElementById('barChart' + (i + 1)).getContext('2d');
+                            Chart.register(ChartDataLabels);
+                            var barChart = new Chart(ctx, {
+                                type: 'bar',
+                                data: {
+                                    labels: labels,
+                                    datasets: [{
+                                        label: 'Respuestas',
+                                        data: values,
+                                        backgroundColor: ['rgba(54, 162, 235, 0.2)', 'rgba(255, 99, 132, 0.2)', 'rgba(75, 192, 192, 0.2)'],
+                                        borderColor: ['rgba(54, 162, 235, 1)', 'rgba(255, 99, 132, 1)', 'rgba(75, 192, 192, 1)'],
+                                        borderWidth: 1
+                                    }]
+                                },
+                                options: {
+                                    responsive: true,
+                                    plugins: {
+                                        tooltip: {
+                                            enabled: false
+                                        },
+                                        datalabels: {
+                                            display: true,
+                                            formatter: function(value, context) {
+                                                const data = context.chart.data.datasets[0].data;
+                                                const total = data.reduce((a, b) => a + (isNaN(b) ? 0 : b), 0);
+                                                if (!total || isNaN(value)) return '0%';
+                                                const percentage = ((value / total) * 100).toFixed(2);
+                                                return percentage + '%';
+                                            },
+                                            color: 'black',
+                                            font: {
+                                                weight: 'bold',
+                                                size: 14
+                                            },
+                                            anchor: 'end',
+                                            align: 'top'
+                                        }
+                                    },
+                                    scales: {
+                                        y: {
+                                            beginAtZero: true,
+                                            ticks: {
+                                                callback: function(value) {
+                                                    return value + '%';
+                                                }
+                                            }
+                                        }
+                                    }
+                                },
+                                plugins: [ChartDataLabels]
+                            });
+                        }
+                    } catch (e) {
+                        alert("Error al procesar los datos: " + e);
+                    }
+                },
+                error: function(xhr, status, error) {
+                    alert("Error al obtener los datos: " + error);
+                }
+            });
+        });
+    </script>
+</body>
+</html>

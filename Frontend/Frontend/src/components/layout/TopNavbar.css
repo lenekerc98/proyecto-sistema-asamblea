@@ -1,0 +1,95 @@
+.top-navbar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 70px;
+    z-index: 1050;
+    background: var(--bg-card);
+    border-bottom: 1px solid var(--glass-border);
+    box-shadow: var(--card-shadow);
+    display: flex;
+    align-items: center;
+    transition: all 0.2s ease-in-out;
+}
+
+.navbar-container {
+    width: 100%;
+    padding: 0 1rem;
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+}
+
+.logo-icon-sm {
+    color: #3b82f6;
+    filter: drop-shadow(0 0 6px rgba(59, 130, 246, 0.4));
+    display: flex;
+    align-items: center;
+}
+
+.navbar-title-sm {
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: var(--text-main);
+    margin: 0;
+    letter-spacing: -0.02em;
+}
+
+/* Minimal Hamburger */
+.hamburger-btn-minimal {
+    background: transparent !important;
+    border: none !important;
+    outline: none !important;
+    -webkit-tap-highlight-color: transparent;
+    color: rgba(255, 255, 255, 0.6);
+    padding: 0.25rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: color 0.15s ease, transform 0.15s ease;
+    box-shadow: none !important;
+}
+
+.hamburger-btn-minimal:hover,
+.hamburger-btn-minimal:focus,
+.hamburger-btn-minimal:active {
+    background: transparent !important;
+    outline: none !important;
+    color: rgba(255, 255, 255, 1);
+    box-shadow: none !important;
+}
+
+.hamburger-btn-minimal.active {
+    color: #3b82f6;
+}
+
+/* Botón del tema */
+.btn-theme-toggle {
+    background: var(--glass-bg);
+    border: 1px solid var(--glass-border);
+    color: var(--text-main);
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.btn-theme-toggle:hover {
+    background: var(--primary-accent);
+    color: white;
+    transform: scale(1.1);
+    border-color: var(--primary-accent);
+}
+
+/* En Desktop, el Hamburger puede estar a la izquierda o en la propia App/Sidebar. En este diseño global el Top Navbar reemplaza el header del Sidebar */
+@media (min-width: 992px) {
+    .top-navbar {
+        height: 70px;
+    }
+}
