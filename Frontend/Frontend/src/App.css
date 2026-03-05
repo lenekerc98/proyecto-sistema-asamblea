@@ -261,3 +261,29 @@ input:-webkit-autofill:active {
   color: white;
   transform: translateY(-2px);
 }
+
+/* 🔄 FIX: Global Select and SweetAlert2 Visibility */
+body select,
+body .swal2-select,
+body .form-select {
+  background-color: #1a1f2b !important;
+  color: white !important;
+  border: 1px solid rgba(255, 255, 255, 0.2) !important;
+  color-scheme: dark !important;
+}
+
+body select option,
+body .swal2-select option,
+body .form-select option {
+  background-color: #1a1f2b !important;
+  color: white !important;
+}
+
+/* Force dark theme for dropdown popups in modern browsers */
+@media (prefers-color-scheme: dark) {
+
+  select,
+  option {
+    color-scheme: dark !important;
+  }
+}

@@ -21,8 +21,10 @@ export const RolesPage: React.FC = () => {
     // ESTADOS MODALES SITEMA
     const [showSistModal, setShowSistModal] = useState(false);
     const [editingRol, setEditingRol] = useState<RolSistema | null>(null);
-    const [formDataSist, setFormDataSist] = useState<{ nombre: string, permisos: Record<string, boolean> }>({
+    const [formDataSist, setFormDataSist] = useState<{ nombre: string, permisos: Record<string, boolean>, permiso_proyector: boolean, permiso_votar: boolean }>({
         nombre: '',
+        permiso_proyector: false,
+        permiso_votar: false,
         permisos: {}
     });
 
@@ -87,7 +89,7 @@ export const RolesPage: React.FC = () => {
             }
             setShowSistModal(false);
             setEditingRol(null);
-            setFormDataSist({ nombre: '', permisos: {} });
+            setFormDataSist({ nombre: '', permiso_proyector: false, permiso_votar: false, permisos: {} });
             cargarDatos();
         } catch (err: any) {
             Swal.fire('Error', err.response?.data?.detail || 'Error al procesar rol', 'error');
@@ -128,10 +130,14 @@ export const RolesPage: React.FC = () => {
     const handleChangeSist = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value, type, checked } = e.target;
         if (type === 'checkbox') {
-            setFormDataSist(prev => ({
-                ...prev,
-                permisos: { ...prev.permisos, [name]: checked }
-            }));
+            if (name === 'permiso_proyector' || name === 'permiso_votar') {
+                setFormDataSist(prev => ({ ...prev, [name]: checked }));
+            } else {
+                setFormDataSist(prev => ({
+                    ...prev,
+                    permisos: { ...prev.permisos, [name]: checked }
+                }));
+            }
         } else {
             setFormDataSist(prev => ({ ...prev, [name]: value }));
         }
@@ -267,6 +273,8 @@ export const RolesPage: React.FC = () => {
                                                                 setEditingRol(r);
                                                                 setFormDataSist({
                                                                     nombre: r.nombre,
+                                                                    permiso_proyector: r.permiso_proyector || false,
+                                                                    permiso_votar: r.permiso_votar || false,
                                                                     permisos: r.permisos || {}
                                                                 });
                                                                 setShowSistModal(true);
@@ -425,6 +433,32 @@ export const RolesPage: React.FC = () => {
                                     )}
                                 </div>
                             ))}
+                        </div>
+
+                        <h6 className="text-main mt-4 mb-3 border-top border-glass pt-3">Permisos Especiales (Globales):</h6>
+                        <div className="d-flex flex-column gap-3 text-dim">
+                            <div className="mb-1">
+                                <Form.Check
+                                    type="switch"
+                                    label={<span className="fw-bold text-main">Acceso Votar (Habilitado para App)</span>}
+                                    name="permiso_votar"
+                                    checked={formDataSist.nombre.toLowerCase() === 'admin' ? true : formDataSist.permiso_votar}
+                                    onChange={handleChangeSist}
+                                    disabled={formDataSist.nombre.toLowerCase() === 'admin'}
+                                />
+                                <Form.Text className="text-dim opacity-75 small ms-4">Permite a los usuarios de este rol acceder a las funciones de votación en remoto e híbrido.</Form.Text>
+                            </div>
+                            <div className="mb-1">
+                                <Form.Check
+                                    type="switch"
+                                    label={<span className="fw-bold text-main">Acceso Proyector (Ver Resultados en Vivo)</span>}
+                                    name="permiso_proyector"
+                                    checked={formDataSist.nombre.toLowerCase() === 'admin' ? true : formDataSist.permiso_proyector}
+                                    onChange={handleChangeSist}
+                                    disabled={formDataSist.nombre.toLowerCase() === 'admin'}
+                                />
+                                <Form.Text className="text-dim opacity-75 small ms-4">Permite visualizar resultados confidenciales y operar la pantalla del proyector.</Form.Text>
+                            </div>
                         </div>
                     </Modal.Body>
                     <Modal.Footer className="border-top-glass pt-3">

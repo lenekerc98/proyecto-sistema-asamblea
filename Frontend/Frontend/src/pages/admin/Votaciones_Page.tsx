@@ -14,6 +14,7 @@ import {
 } from 'lucide-react';
 import { listarAccionistas } from '../../services/accionistas.service';
 import { votacionesService, type Pregunta, type ResultadoVotacion, type VotoDetalle } from '../../services/votaciones.service';
+import { authService } from '../../services/auth.service';
 import { configService } from '../../services/config.service';
 import type { Accionista } from '../../services/accionistas.service';
 import { useTheme } from '../../context/ThemeContext';
@@ -46,6 +47,8 @@ export const VotacionesPage: React.FC = () => {
     const [votosDetalle, setVotosDetalle] = useState<VotoDetalle[]>([]);
     const [vistaProyector, setVistaProyector] = useState<string>('espera');
     const [expandedGroups, setExpandedGroups] = useState<Record<string, boolean>>({});
+    const [currentUser] = useState<any>(authService.getCurrentUser());
+    const [asambleaConfig, setAsambleaConfig] = useState<any>(null);
 
     const selectedPreguntaRef = useRef<Pregunta | null>(null);
 
@@ -81,6 +84,7 @@ export const VotacionesPage: React.FC = () => {
             }
 
             const config = await configService.getAsambleaConfig();
+            setAsambleaConfig(config);
             if (config.vista_proyector) {
                 setVistaProyector(config.vista_proyector);
             }
@@ -211,6 +215,17 @@ export const VotacionesPage: React.FC = () => {
     const handleAbrirVotacion = async () => {
         if (!selectedPregunta) return;
 
+        if (asambleaConfig && !asambleaConfig.asamblea_iniciada) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Asamblea no Iniciada',
+                text: 'Debe iniciar la asamblea oficialmente y congelar el quórum desde Parámetros Generales antes de abrir cualquier votación.',
+                background: 'var(--bg-card-solid)',
+                color: 'var(--text-main)'
+            });
+            return;
+        }
+
         const confirm = await Swal.fire({
             title: '¿Abrir Votación?',
             text: "Los accionistas podrán comenzar a emitir sus votos ahora.",
@@ -253,6 +268,83 @@ export const VotacionesPage: React.FC = () => {
             });
         } catch (error) {
             console.error('Error cambiar vista:', error);
+        }
+    };
+
+    const canManageProyector = useMemo(() => {
+        if (!currentUser) return false;
+        const rol = currentUser.rol;
+        if (!rol) return false;
+        if (rol.nombre?.toLowerCase() === 'admin') return true;
+        return !!rol.permiso_proyector;
+    }, [currentUser]);
+
+    const canVoteManual = useMemo(() => {
+        if (!currentUser) return false;
+        const rol = currentUser.rol;
+        if (!rol) return false;
+        if (rol.nombre?.toLowerCase() === 'admin') return true;
+        return !!rol.permiso_votar;
+    }, [currentUser]);
+
+    const handleVotarManual = async (acc: Accionista) => {
+        if (!selectedPregunta) return;
+        if (selectedPregunta.estado !== 'activa') {
+            Swal.fire({
+                icon: 'warning',
+                title: 'Votación no activa',
+                text: 'La pregunta debe estar en estado ACTIVA para registrar votos manuales.',
+                background: 'var(--bg-card-solid)',
+                color: 'var(--text-main)'
+            });
+            return;
+        }
+
+        const { value: opcion } = await Swal.fire({
+            title: `Registrar Voto Manual: ${acc.nombre_titular}`,
+            text: 'Seleccione la opción marcada por el socio en el papel.',
+            input: 'select',
+            inputOptions: selectedPregunta.opciones.reduce((acc: any, opc: any) => {
+                acc[opc.texto] = opc.texto.toUpperCase();
+                return acc;
+            }, {}),
+            inputPlaceholder: 'Seleccione una opción',
+            showCancelButton: true,
+            confirmButtonText: 'Registrar Voto',
+            cancelButtonText: 'Cancelar',
+            background: 'var(--bg-card-solid)',
+            color: 'var(--text-main)',
+            reverseButtons: true
+        });
+
+        if (opcion) {
+            try {
+                await votacionesService.registrarVotoManual({
+                    periodo: selectedPregunta.periodo,
+                    pregunta_id: selectedPregunta.id,
+                    numero_accionista: acc.numero_accionista,
+                    opcion: opcion
+                });
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Voto Registrado',
+                    toast: true,
+                    position: 'top-end',
+                    showConfirmButton: false,
+                    timer: 3000,
+                    background: 'var(--bg-card-solid)',
+                    color: 'var(--text-main)'
+                });
+                cargarResultados(selectedPregunta.id);
+            } catch (error: any) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: error.response?.data?.detail || 'No se pudo registrar el voto.',
+                    background: 'var(--bg-card-solid)',
+                    color: 'var(--text-main)'
+                });
+            }
         }
     };
 
@@ -585,35 +677,37 @@ export const VotacionesPage: React.FC = () => {
                         </div>
                     </Card>
 
-                    <Card className="bg-glass border-glass p-4 rounded-4 shadow-lg">
-                        <h4 className="text-main h6 mb-3 d-flex align-items-center gap-2 opacity-90 text-uppercase letter-spacing-wide">
-                            <MonitorPlay size={18} className="text-warning" />
-                            Control del Proyector
-                        </h4>
-                        <div className="d-flex flex-column gap-2">
-                            <Button
-                                variant={vistaProyector === 'espera' ? 'warning' : 'outline-warning'}
-                                className="w-100 border-opacity-50 text-start d-flex align-items-center gap-2 px-3 fw-bold py-2"
-                                onClick={() => handleCambiarVista('espera')}
-                            >
-                                <PauseCircle size={18} /> MODO ESPERA
-                            </Button>
-                            <Button
-                                variant={vistaProyector === 'quorum' ? 'info' : 'outline-info'}
-                                className="w-100 border-opacity-50 text-start d-flex align-items-center gap-2 px-3 fw-bold py-2"
-                                onClick={() => handleCambiarVista('quorum')}
-                            >
-                                <Users size={18} /> MOSTRAR QUÓRUM Y QR
-                            </Button>
-                            <Button
-                                variant={vistaProyector === 'pregunta_activa' ? 'primary' : 'outline-primary'}
-                                className="w-100 border-opacity-50 text-start d-flex align-items-center gap-2 px-3 fw-bold py-2"
-                                onClick={() => handleCambiarVista('pregunta_activa')}
-                            >
-                                <BarChart3 size={18} /> MOSTRAR RESULTADOS
-                            </Button>
-                        </div>
-                    </Card>
+                    {canManageProyector && (
+                        <Card className="bg-glass border-glass p-4 rounded-4 shadow-lg mt-3">
+                            <h4 className="text-main h6 mb-3 d-flex align-items-center gap-2 opacity-90 text-uppercase letter-spacing-wide">
+                                <MonitorPlay size={18} className="text-warning" />
+                                Control del Proyector
+                            </h4>
+                            <div className="d-flex flex-column gap-2">
+                                <Button
+                                    variant={vistaProyector === 'espera' ? 'warning' : 'outline-warning'}
+                                    className="w-100 border-opacity-50 text-start d-flex align-items-center gap-2 px-3 fw-bold py-2"
+                                    onClick={() => handleCambiarVista('espera')}
+                                >
+                                    <PauseCircle size={18} /> MODO ESPERA
+                                </Button>
+                                <Button
+                                    variant={vistaProyector === 'quorum' ? 'info' : 'outline-info'}
+                                    className="w-100 border-opacity-50 text-start d-flex align-items-center gap-2 px-3 fw-bold py-2"
+                                    onClick={() => handleCambiarVista('quorum')}
+                                >
+                                    <Users size={18} /> MOSTRAR QUÓRUM Y QR
+                                </Button>
+                                <Button
+                                    variant={vistaProyector === 'pregunta_activa' ? 'primary' : 'outline-primary'}
+                                    className="w-100 border-opacity-50 text-start d-flex align-items-center gap-2 px-3 fw-bold py-2"
+                                    onClick={() => handleCambiarVista('pregunta_activa')}
+                                >
+                                    <BarChart3 size={18} /> MOSTRAR RESULTADOS
+                                </Button>
+                            </div>
+                        </Card>
+                    )}
                 </Col>
             </Row>
 
@@ -712,9 +806,25 @@ export const VotacionesPage: React.FC = () => {
                                                         }%
                                                     </td>
                                                     <td className="text-center border-0">
-                                                        <Badge bg={votoAcc ? (normalize(votoAcc.opcion) === 'si' ? 'success' : 'danger') : 'secondary'} className={`bg-opacity-25 px-2 py-1 ${votoAcc ? 'text-main' : 'text-dim opacity-50 border border-main-opacity'}`} style={{ fontSize: '0.75rem' }}>
-                                                            {votoAcc ? votoAcc.opcion.toUpperCase() : 'NO VOTÓ'}
-                                                        </Badge>
+                                                        <div className="d-flex align-items-center justify-content-center gap-2">
+                                                            <Badge bg={votoAcc ? (normalize(votoAcc.opcion) === 'si' ? 'success' : 'danger') : 'secondary'} className={`bg-opacity-25 px-2 py-1 ${votoAcc ? 'text-main' : 'text-dim opacity-50 border border-main-opacity'}`} style={{ fontSize: '0.75rem' }}>
+                                                                {votoAcc ? votoAcc.opcion.toUpperCase() : 'NO VOTÓ'}
+                                                            </Badge>
+                                                            {!votoAcc && canVoteManual && asambleaConfig?.tipo_votacion_permitida !== 'telefono' && (
+                                                                <Button
+                                                                    variant="outline-info"
+                                                                    size="sm"
+                                                                    className="py-0 px-2 rounded-pill fw-bold"
+                                                                    style={{ fontSize: '0.65rem' }}
+                                                                    onClick={(e) => {
+                                                                        e.stopPropagation();
+                                                                        handleVotarManual(acc);
+                                                                    }}
+                                                                >
+                                                                    VOTO MANUAL
+                                                                </Button>
+                                                            )}
+                                                        </div>
                                                     </td>
                                                 </tr>
                                             );

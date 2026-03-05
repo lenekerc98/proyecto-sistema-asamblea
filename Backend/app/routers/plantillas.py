@@ -59,3 +59,32 @@ def eliminar_plantilla(
     db.delete(db_plantilla)
     db.commit()
     return {"mensaje": "Plantilla eliminada exitosamente"}
+
+# --- REPORTES PDF ---
+
+@router.get("/reportes", response_model=List[schemas.PlantillaReporteOut])
+def listar_plantillas_reporte(
+    db: Session = Depends(database.get_db),
+    current_user: models.Usuario = Depends(auth.get_current_user)
+):
+    from ..database.seeders import seed_templates
+    seed_templates(db)
+    return db.query(models.PlantillaReporte).all()
+
+@router.put("/reportes/{id}", response_model=schemas.PlantillaReporteOut)
+def actualizar_plantilla_reporte(
+    id: int,
+    plantilla: schemas.PlantillaReporteUpdate,
+    db: Session = Depends(database.get_db),
+    current_user: models.Usuario = Depends(auth.get_current_user)
+):
+    db_plantilla = db.query(models.PlantillaReporte).filter(models.PlantillaReporte.id == id).first()
+    if not db_plantilla:
+        raise HTTPException(status_code=404, detail="Plantilla no encontrada")
+    
+    for key, value in plantilla.dict(exclude_unset=True).items():
+        setattr(db_plantilla, key, value)
+    
+    db.commit()
+    db.refresh(db_plantilla)
+    return db_plantilla

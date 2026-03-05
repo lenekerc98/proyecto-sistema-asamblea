@@ -23,7 +23,8 @@ export const ParametrosGenerales: React.FC = () => {
         sobrescribir_importacion: false,
         quorum_final_calculado: 0,
         modo_entorno: 'produccion',
-        notificar_inicio_asamblea: false
+        notificar_inicio_asamblea: false,
+        tipo_votacion_permitida: 'hibrido'
     });
 
     useEffect(() => {
@@ -59,7 +60,7 @@ export const ParametrosGenerales: React.FC = () => {
         }
     };
 
-    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
         const { name, value, type } = e.target;
         setConfig(prev => ({
             ...prev,
@@ -328,6 +329,28 @@ export const ParametrosGenerales: React.FC = () => {
                                                     onChange={(e) => setConfig(prev => ({ ...prev, notificar_inicio_asamblea: e.target.checked }))}
                                                     className="fs-4 m-0 custom-switch-glow"
                                                 />
+                                            </div>
+                                        </Col>
+                                        <Col md={12}>
+                                            <div className="d-flex justify-content-between align-items-center p-3 rounded-3 bg-surface border border-main-opacity mt-2">
+                                                <div className="flex-grow-1 pe-4">
+                                                    <span className="text-main d-block fw-bold">🗳️ Modalidad de Votación</span>
+                                                    <small className="text-dim" style={{ fontSize: '0.85em' }}>
+                                                        Define cómo registrarán los votos los asistentes de tipo presencial/híbrido. (Teléfono móvil, Papel, o Híbrido).
+                                                    </small>
+                                                </div>
+                                                <div style={{ minWidth: '200px' }}>
+                                                    <Form.Select
+                                                        name="tipo_votacion_permitida"
+                                                        value={config.tipo_votacion_permitida || 'hibrido'}
+                                                        onChange={handleChange}
+                                                        className="bg-transparent text-main border-main-opacity"
+                                                    >
+                                                        <option value="hibrido">Híbrido (App + Papel)</option>
+                                                        <option value="telefono">Solo Teléfono (App)</option>
+                                                        <option value="papel">Solo Papel (Subida Manual)</option>
+                                                    </Form.Select>
+                                                </div>
                                             </div>
                                         </Col>
                                     </Row>

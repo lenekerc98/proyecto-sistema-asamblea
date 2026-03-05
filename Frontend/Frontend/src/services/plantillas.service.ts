@@ -19,6 +19,15 @@ export interface EmailPlantilla {
     asignacion: string;
 }
 
+export interface PlantillaReporte {
+    id: number;
+    slug: string;
+    nombre: string;
+    contenido_html: string;
+    estilos_css?: string;
+    pie_pagina?: string;
+}
+
 export const plantillasService = {
     listar: async () => {
         const res = await axios.get<EmailPlantilla[]>(`${API_URL}/plantillas/`, getAuthHeaders());
@@ -34,5 +43,14 @@ export const plantillasService = {
     },
     eliminar: async (id: number) => {
         await axios.delete(`${API_URL}/plantillas/${id}`, getAuthHeaders());
+    },
+    // REPORTES PDF
+    listarReportes: async () => {
+        const res = await axios.get<PlantillaReporte[]>(`${API_URL}/plantillas/reportes`, getAuthHeaders());
+        return res.data;
+    },
+    actualizarReporte: async (id: number, datos: Partial<PlantillaReporte>) => {
+        const res = await axios.put<PlantillaReporte>(`${API_URL}/plantillas/reportes/${id}`, datos, getAuthHeaders());
+        return res.data;
     }
 };

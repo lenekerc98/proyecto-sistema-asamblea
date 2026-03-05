@@ -1,6 +1,9 @@
 from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi.responses import StreamingResponse
 from sqlalchemy.orm import Session, joinedload
 from sqlalchemy import func
+import pandas as pd
+import io
 from datetime import datetime
 from typing import List
 from ..database import models, session as database, schemas
@@ -64,6 +67,14 @@ def actualizar_pregunta(
     if not p:
         raise HTTPException(status_code=404, detail="Pregunta no encontrada")
     
+    if datos.estado == "activa":
+        config = db.query(models.ParametrosAsamblea).first()
+        if not config or not config.asamblea_iniciada:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="No se puede activar la votación porque la asamblea aún no ha sido iniciada oficialmente."
+            )
+
     for key, value in datos.dict(exclude_unset=True).items():
         setattr(p, key, value)
     
@@ -454,5 +465,129 @@ def obtener_informacion_asistente_movil(identificacion: str, db: Session = Depen
         "total_representados": len(asistencias),
         "total_acciones": total_acciones,
         "porcentaje_total_asamblea": round(total_porcentaje, 3),
-        "detalle": resumen_accionistas
-    }
+        "detalle": resumen_accionistas}
+
+@router.get("/reportes/resultados-votacion")
+def exportar_votaciones_reporte(
+    db: Session = Depends(database.get_db),
+    current_user: models.Usuario = Depends(auth.get_current_user)
+):
+    config = db.query(models.ParametrosAsamblea).first()
+    periodo = config.periodo_activo if config else "2025"
+    
+    preguntas = db.query(models.Pregunta).filter(models.Pregunta.periodo == periodo).order_by(models.Pregunta.numero_orden).all()
+    
+    # --- HOJA 1: RESUMEN AGREGADO POR PREGUNTA ---
+    resumen_data = []
+    
+    # --- HOJA 2: DETALLE INDIVIDUAL DE VOTOS ---
+    detalle_data = []
+    
+    for p in preguntas:
+        # Obtener resultados agregados (reusando lógica interna o similar)
+        res = obtener_resultados(p.id, db)
+        
+        for r in res.resultados:
+            resumen_data.append({
+                "Pregunta ID": p.id,
+                "Enunciado": p.enunciado,
+                "Opción": r.opcion,
+                "Votos Cantidad": r.votos_count,
+                "% Participación (Base Quórum)": r.porcentaje_total
+            })
+            
+        # Detalle de votos para esta pregunta
+        votos = db.query(models.Voto).options(joinedload(models.Voto.accionista)).filter(models.Voto.pregunta_id == p.id).all()
+        for v in votos:
+            detalle_data.append({
+                "Pregunta ID": p.id,
+                "Enunciado": p.enunciado,
+                "Socio ID": v.accionista.numero_accionista if v.accionista else "N/A",
+                "Socio Nombre": v.accionista.nombre_titular if v.accionista else "N/A",
+                "Elección": v.opcion.upper(),
+                "Acciones": v.porcentaje_voto,
+                "% Peso en Votación": v.peso_relativo,
+                "Fecha/Hora Voto": v.creado_en.strftime("%Y-%m-%d %H:%M:%S") if hasattr(v, 'creado_en') and v.creado_en else "N/A"
+            })
+            
+    # Crear Excel con dos hojas
+    output = io.BytesIO()
+    with pd.ExcelWriter(output, engine='openpyxl') as writer:
+        if resumen_data:
+            pd.DataFrame(resumen_data).to_excel(writer, index=False, sheet_name='Resumen de Resultados')
+        if detalle_data:
+            pd.DataFrame(detalle_data).to_excel(writer, index=False, sheet_name='Detalle de Votos por Socio')
+            
+    output.seek(0)
+    return StreamingResponse(
+        output, 
+        media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        headers={"Content-Disposition": f"attachment; filename=Reporte_Votaciones_{periodo}.xlsx"}
+    )
+
+from ..core.pdf_service import PDFService
+from . import votaciones
+
+@router.get("/reportes/acta")
+def exportar_acta_asamblea(
+    formato: str = "excel",
+    db: Session = Depends(database.get_db),
+    current_user: models.Usuario = Depends(auth.get_current_user)
+):
+    from ..database.seeders import seed_templates
+    seed_templates(db)
+    
+    config = db.query(models.ParametrosAsamblea).first()
+    periodo = config.periodo_activo if config else "2025"
+    
+    # PDF BRANCH
+    if formato == "pdf":
+        try:
+            from ..core.pdf_service import PDFService
+            data_reporte = PDFService.get_default_acta_data(db, periodo)
+            pdf_bytes = PDFService.generate_pdf("acta", data_reporte, db)
+            
+            return StreamingResponse(
+                pdf_bytes,
+                media_type="application/pdf",
+                headers={"Content-Disposition": f"attachment; filename=Acta_Asamblea_{periodo}.pdf"}
+            )
+        except Exception as e:
+            # Fallback a Excel si PDF falla o falta librería
+            print(f"Error PDF: {e}")
+            pass
+
+    # EXCEL BRANCH (Existing or fallback)
+    fecha = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    quorum_final = config.quorum_final_calculado if config else 0
+    
+    # 2. Resumen de Preguntas y Resultados
+    preguntas = db.query(models.Pregunta).filter(models.Pregunta.periodo == periodo).order_by(models.Pregunta.numero_orden).all()
+    
+    resumen_data = []
+    resumen_data.append({"Concepto": "Título", "Detalle": f"ACTA DE ASAMBLEA ORDINARIA - PERIODO {periodo}"})
+    resumen_data.append({"Concepto": "Fecha de Generación", "Detalle": fecha})
+    resumen_data.append({"Concepto": "Quórum Congelado al Inicio", "Detalle": f"{round(quorum_final, 4)}%"})
+    resumen_data.append({"Concepto": "", "Detalle": ""}) # Espantador
+    
+    for p in preguntas:
+        resumen_data.append({"Concepto": f"PREGUNTA {p.numero_orden}", "Detalle": p.enunciado})
+        resumen_data.append({"Concepto": "Estado", "Detalle": p.estado.upper()})
+        
+        # Resultados de esta pregunta
+        res = obtener_resultados(p.id, db)
+        for r in res.resultados:
+            resumen_data.append({"Concepto": f" - {r.opcion}", "Detalle": f"{r.votos_count} votos ({r.porcentaje_total}%)"})
+        resumen_data.append({"Concepto": "", "Detalle": ""})
+
+    df = pd.DataFrame(resumen_data)
+    output = io.BytesIO()
+    with pd.ExcelWriter(output, engine='openpyxl') as writer:
+        df.to_excel(writer, index=False, sheet_name='Acta de Asamblea')
+        
+    output.seek(0)
+    return StreamingResponse(
+        output, 
+        media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        headers={"Content-Disposition": f"attachment; filename=Acta_Asamblea_{periodo}.xlsx"}
+    )

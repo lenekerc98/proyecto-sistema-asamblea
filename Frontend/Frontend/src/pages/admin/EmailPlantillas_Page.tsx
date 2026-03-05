@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { Row, Col, Card, Form, Button, Table, Modal, Spinner, Badge } from 'react-bootstrap';
-import { Plus, Trash2, Edit2, Save, FileText, Image as ImageIcon, Search, Filter } from 'lucide-react';
-import { plantillasService, type EmailPlantilla } from '../../services/plantillas.service';
+import { Row, Col, Card, Form, Button, Table, Modal, Spinner, Badge, Tabs, Tab } from 'react-bootstrap';
+import { Plus, Trash2, Edit2, Save, FileText, Image as ImageIcon, Search, Filter, FileBarChart } from 'lucide-react';
+import { plantillasService, type EmailPlantilla, type PlantillaReporte } from '../../services/plantillas.service';
 import { configService } from '../../services/config.service';
 import { userService } from '../../services/user.service';
 import { authService } from '../../services/auth.service';
@@ -15,12 +15,18 @@ export const EmailPlantillas_Page: React.FC = () => {
     const { theme } = useTheme();
     const [loading, setLoading] = useState(true);
     const [plantillas, setPlantillas] = useState<EmailPlantilla[]>([]);
+    const [reportes, setReportes] = useState<PlantillaReporte[]>([]);
     const [firma, setFirma] = useState('');
     const [savingFirma, setSavingFirma] = useState(false);
     const [busqueda, setBusqueda] = useState('');
     const [showModal, setShowModal] = useState(false);
+    const [showReportModal, setShowReportModal] = useState(false);
+    const [activeTab, setActiveTab] = useState('email');
     const [currentPlantilla, setCurrentPlantilla] = useState<Partial<EmailPlantilla>>({
         nombre: '', asunto: '', cuerpo: '', asignacion: 'global'
+    });
+    const [currentReporte, setCurrentReporte] = useState<Partial<PlantillaReporte>>({
+        nombre: '', contenido_html: '', estilos_css: '', slug: ''
     });
 
 
@@ -31,11 +37,13 @@ export const EmailPlantillas_Page: React.FC = () => {
     const loadData = async () => {
         setLoading(true);
         try {
-            const [dataPlantillas, dataConfig] = await Promise.all([
+            const [dataPlantillas, dataReportes, dataConfig] = await Promise.all([
                 plantillasService.listar(),
+                plantillasService.listarReportes(),
                 configService.getAsambleaConfig()
             ]);
             setPlantillas(dataPlantillas);
+            setReportes(dataReportes);
 
             // Cargar firma del usuario actual (si existe en el perfil)
             const user = authService.getCurrentUser();
@@ -124,10 +132,33 @@ export const EmailPlantillas_Page: React.FC = () => {
         }
     };
 
+    const handleSaveReporte = async () => {
+        try {
+            if (currentReporte.id) {
+                await plantillasService.actualizarReporte(currentReporte.id, currentReporte);
+                setShowReportModal(false);
+                loadData();
+                Swal.fire({ icon: 'success', title: 'Diseño de Reporte Guardado', background: 'var(--bg-card-solid)', color: 'var(--text-main)' });
+            }
+        } catch (error) {
+            Swal.fire({ icon: 'error', title: 'Error', text: 'No se pudo guardar el diseño del reporte', background: 'var(--bg-card-solid)', color: 'var(--text-main)' });
+        }
+    };
+
+    const handleOpenReportModal = (reporte: PlantillaReporte) => {
+        setCurrentReporte(reporte);
+        setShowReportModal(true);
+    };
+
     const plantillasFiltradas = plantillas.filter(p =>
         p.nombre.toLowerCase().includes(busqueda.toLowerCase()) ||
         p.asunto.toLowerCase().includes(busqueda.toLowerCase()) ||
         p.asignacion.toLowerCase().includes(busqueda.toLowerCase())
+    );
+
+    const reportesFiltrados = reportes.filter(r =>
+        r.nombre.toLowerCase().includes(busqueda.toLowerCase()) ||
+        r.slug.toLowerCase().includes(busqueda.toLowerCase())
     );
 
     const editorConfig = {
@@ -196,95 +227,143 @@ export const EmailPlantillas_Page: React.FC = () => {
             {/* Sección: Listado de Plantillas */}
             <Row className="g-4">
                 <Col lg={12}>
-                    <header className="mb-4 d-flex justify-content-between align-items-center">
-                        <div>
-                            <h2 className="h4 fw-bold text-main mb-1">Plantillas de Correo</h2>
-                            <p className="text-dim small mb-0">Gestione los mensajes automáticos que el sistema envía.</p>
-                        </div>
-                        <Button variant="primary" onClick={() => handleOpenModal()} className="btn-gradient-primary d-flex align-items-center gap-2 px-4 shadow-sm border-0 rounded-pill hover-scale">
-                            <Plus size={20} /> NUEVA PLANTILLA
-                        </Button>
-                    </header>
+                    <Tabs
+                        activeKey={activeTab}
+                        onSelect={(k) => setActiveTab(k || 'email')}
+                        className="mb-4 custom-tabs"
+                    >
+                        <Tab eventKey="email" title={<span><FileText size={18} className="me-2" /> Plantillas de Email</span>}>
+                            <header className="mb-4 d-flex justify-content-between align-items-center mt-3">
+                                <div>
+                                    <h2 className="h4 fw-bold text-main mb-1">Plantillas de Correo</h2>
+                                    <p className="text-dim small mb-0">Gestione los mensajes automáticos que el sistema envía.</p>
+                                </div>
+                                <Button variant="primary" onClick={() => handleOpenModal()} className="btn-gradient-primary d-flex align-items-center gap-2 px-4 shadow-sm border-0 rounded-pill hover-scale">
+                                    <Plus size={20} /> NUEVA PLANTILLA
+                                </Button>
+                            </header>
 
-                    {/* Barra de Búsqueda */}
-                    <Card className="bg-glass border-glass rounded-4 shadow-sm mb-4">
-                        <Card.Body className="p-3">
-                            <Row className="g-3 align-items-center">
-                                <Col md={6}>
-                                    <div className="position-relative">
-                                        <Search size={18} className="text-dim position-absolute top-50 start-0 translate-middle-y ms-3" />
-                                        <Form.Control
-                                            className="bg-surface text-main border-main-opacity ps-5 shadow-none rounded-pill"
-                                            placeholder="Buscar por nombre o asunto..."
-                                            value={busqueda}
-                                            onChange={(e) => setBusqueda(e.target.value)}
-                                        />
-                                    </div>
-                                </Col>
-                                <Col md={6} className="text-end">
-                                    <Button variant="outline-primary" className="border-main-opacity rounded-pill hover-scale d-inline-flex align-items-center gap-2 px-3">
-                                        <Filter size={18} /> Filtrar
-                                    </Button>
-                                </Col>
-                            </Row>
-                        </Card.Body>
-                    </Card>
+                            {/* Barra de Búsqueda */}
+                            <Card className="bg-glass border-glass rounded-4 shadow-sm mb-4">
+                                <Card.Body className="p-3">
+                                    <Row className="g-3 align-items-center">
+                                        <Col md={8}>
+                                            <div className="position-relative">
+                                                <Search size={18} className="text-dim position-absolute top-50 start-0 translate-middle-y ms-3" />
+                                                <Form.Control
+                                                    className="bg-surface text-main border-main-opacity ps-5 shadow-none rounded-pill"
+                                                    placeholder="Buscar por nombre o asunto..."
+                                                    value={busqueda}
+                                                    onChange={(e) => setBusqueda(e.target.value)}
+                                                />
+                                            </div>
+                                        </Col>
+                                    </Row>
+                                </Card.Body>
+                            </Card>
 
-                    {/* Tabla de Plantillas */}
-                    <div className="glass-table-container shadow-lg">
-                        <Table responsive hover className="glass-table align-middle">
-                            <thead>
-                                <tr>
-                                    <th className="ps-4 py-3">Nombre</th>
-                                    <th className="py-3">Asunto</th>
-                                    <th className="py-3 text-center">Asignación</th>
-                                    <th className="text-end pe-4 py-3">Acciones</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {plantillasFiltradas.length === 0 ? (
-                                    <tr>
-                                        <td colSpan={4} className="text-center py-5 text-dim border-0">
-                                            {loading ? 'Cargando datos...' : 'No se encontraron plantillas registradas.'}
-                                        </td>
-                                    </tr>
-                                ) : (
-                                    plantillasFiltradas.map(p => (
-                                        <tr key={p.id}>
-                                            <td className="ps-4">
-                                                <div className="d-flex align-items-center gap-3">
-                                                    <div className="bg-primary bg-opacity-10 p-2 rounded-circle">
-                                                        <FileText size={18} className="text-primary" />
-                                                    </div>
-                                                    <span className="text-main fw-bold">{p.nombre}</span>
-                                                </div>
-                                            </td>
-                                            <td className="text-dim small">{p.asunto}</td>
-                                            <td className="text-center">
-                                                <Badge className="badge-primary-glass text-uppercase" style={{ fontSize: '0.7rem' }}>
-                                                    {p.asignacion}
-                                                </Badge>
-                                            </td>
-                                            <td className="text-end pe-4">
-                                                <div className="d-flex justify-content-end gap-2">
-                                                    <Button variant="link" className="btn-circle-action text-info" onClick={() => handleOpenModal(p)} title="Editar">
-                                                        <Edit2 size={16} />
-                                                    </Button>
-                                                    <Button variant="link" className="btn-circle-action text-danger border-danger border-opacity-10" onClick={() => handleEliminar(p.id)} title="Eliminar">
-                                                        <Trash2 size={16} />
-                                                    </Button>
-                                                </div>
-                                            </td>
+                            {/* Tabla de Plantillas */}
+                            <div className="glass-table-container shadow-lg">
+                                <Table responsive hover className="glass-table align-middle">
+                                    <thead>
+                                        <tr>
+                                            <th className="ps-4 py-3">Nombre</th>
+                                            <th className="py-3">Asunto</th>
+                                            <th className="py-3 text-center">Asignación</th>
+                                            <th className="text-end pe-4 py-3">Acciones</th>
                                         </tr>
-                                    ))
-                                )}
-                            </tbody>
-                        </Table>
-                    </div>
+                                    </thead>
+                                    <tbody>
+                                        {plantillasFiltradas.length === 0 ? (
+                                            <tr>
+                                                <td colSpan={4} className="text-center py-5 text-dim border-0">
+                                                    No se encontraron plantillas de correo.
+                                                </td>
+                                            </tr>
+                                        ) : (
+                                            plantillasFiltradas.map(p => (
+                                                <tr key={p.id}>
+                                                    <td className="ps-4">
+                                                        <div className="d-flex align-items-center gap-3">
+                                                            <div className="bg-primary bg-opacity-10 p-2 rounded-circle">
+                                                                <FileText size={18} className="text-primary" />
+                                                            </div>
+                                                            <span className="text-main fw-bold">{p.nombre}</span>
+                                                        </div>
+                                                    </td>
+                                                    <td className="text-dim small">{p.asunto}</td>
+                                                    <td className="text-center">
+                                                        <Badge className="badge-primary-glass text-uppercase" style={{ fontSize: '0.7rem' }}>
+                                                            {p.asignacion}
+                                                        </Badge>
+                                                    </td>
+                                                    <td className="text-end pe-4">
+                                                        <div className="d-flex justify-content-end gap-2">
+                                                            <Button variant="link" className="btn-circle-action text-info" onClick={() => handleOpenModal(p)} title="Editar">
+                                                                <Edit2 size={16} />
+                                                            </Button>
+                                                            <Button variant="link" className="btn-circle-action text-danger" onClick={() => handleEliminar(p.id)} title="Eliminar">
+                                                                <Trash2 size={16} />
+                                                            </Button>
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                            ))
+                                        )}
+                                    </tbody>
+                                </Table>
+                            </div>
+                        </Tab>
+
+                        <Tab eventKey="pdf" title={<span><FileBarChart size={18} className="me-2" /> Reportes PDF / Acta</span>}>
+                            <header className="mb-4 d-flex justify-content-between align-items-center mt-3">
+                                <div>
+                                    <h2 className="h4 fw-bold text-main mb-1">Diseño de Reportes PDF</h2>
+                                    <p className="text-dim small mb-0">Personalice el diseño HTML/CSS de los documentos oficiales (Acta, Quórum, etc).</p>
+                                </div>
+                            </header>
+
+                            <div className="glass-table-container shadow-lg">
+                                <Table responsive hover className="glass-table align-middle">
+                                    <thead>
+                                        <tr>
+                                            <th className="ps-4 py-3">Documento</th>
+                                            <th className="py-3">Identificador (Slug)</th>
+                                            <th className="text-end pe-4 py-3">Acciones</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {reportesFiltrados.map(r => (
+                                            <tr key={r.id}>
+                                                <td className="ps-4">
+                                                    <div className="d-flex align-items-center gap-3">
+                                                        <div className="bg-info bg-opacity-10 p-2 rounded-circle">
+                                                            <FileBarChart size={18} className="text-info" />
+                                                        </div>
+                                                        <span className="text-main fw-bold">{r.nombre}</span>
+                                                    </div>
+                                                </td>
+                                                <td className="text-dim font-monospace small">{r.slug}</td>
+                                                <td className="text-end pe-4">
+                                                    <Button
+                                                        variant="primary"
+                                                        className="btn-gradient-primary rounded-pill px-4 btn-sm"
+                                                        onClick={() => handleOpenReportModal(r)}
+                                                    >
+                                                        <Edit2 size={14} className="me-2" /> DISEÑAR PDF
+                                                    </Button>
+                                                </td>
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </Table>
+                            </div>
+                        </Tab>
+                    </Tabs>
                 </Col>
             </Row>
 
-            {/* Modal para Crear/Editar Plantilla */}
+            {/* Modal para Email */}
             <Modal show={showModal} onHide={() => setShowModal(false)} size="lg" centered contentClassName="glass-modal">
                 <Modal.Header closeButton className="border-bottom border-main-opacity">
                     <Modal.Title className="fw-bold text-main">
@@ -300,7 +379,6 @@ export const EmailPlantillas_Page: React.FC = () => {
                                     <Form.Control
                                         type="text"
                                         className="bg-surface text-main border-main-opacity shadow-none py-2"
-                                        placeholder="Ej: Invitación a Votación"
                                         value={currentPlantilla.nombre}
                                         onChange={e => setCurrentPlantilla({ ...currentPlantilla, nombre: e.target.value })}
                                     />
@@ -314,10 +392,9 @@ export const EmailPlantillas_Page: React.FC = () => {
                                         value={currentPlantilla.asignacion}
                                         onChange={e => setCurrentPlantilla({ ...currentPlantilla, asignacion: e.target.value })}
                                     >
-                                        <option value="global" style={{ background: 'var(--bg-card-solid)', color: 'var(--text-main)' }}>Global</option>
-                                        <option value="asistencia" style={{ background: 'var(--bg-card-solid)', color: 'var(--text-main)' }}>Asistencia</option>
-                                        <option value="votacion" style={{ background: 'var(--bg-card-solid)', color: 'var(--text-main)' }}>Votación</option>
-                                        <option value="recordatorio" style={{ background: 'var(--bg-card-solid)', color: 'var(--text-main)' }}>Recordatorio</option>
+                                        <option value="global">Global</option>
+                                        <option value="asistencia">Asistencia</option>
+                                        <option value="votacion">Votación</option>
                                     </Form.Select>
                                 </Form.Group>
                             </Col>
@@ -327,39 +404,52 @@ export const EmailPlantillas_Page: React.FC = () => {
                                     <Form.Control
                                         type="text"
                                         className="bg-surface text-main border-main-opacity shadow-none py-2"
-                                        placeholder="El título que el cliente leerá..."
                                         value={currentPlantilla.asunto}
                                         onChange={e => setCurrentPlantilla({ ...currentPlantilla, asunto: e.target.value })}
                                     />
                                 </Form.Group>
                             </Col>
                             <Col md={12}>
-                                <Form.Group className="mb-2">
-                                    <Form.Label className="text-dim small fw-bold mb-2">CONTENIDO DEL CUERPO</Form.Label>
-                                    <div className="quill-paper-theme">
-                                        <JoditEditor
-                                            value={currentPlantilla.cuerpo || ''}
-                                            config={editorConfig}
-                                            onBlur={val => setCurrentPlantilla({ ...currentPlantilla, cuerpo: val })}
-                                        />
-                                    </div>
-                                    <div className="mt-3 p-3 rounded-4 bg-primary bg-opacity-5 border border-primary border-opacity-10">
-                                        <small className="text-primary-emphasis fw-medium">
-                                            💡 <strong>Tips:</strong> Puedes usar {"{nombre}"}, {"{entidad}"} o {"{token}"} para personalizar el mensaje según el destinatario.
-                                        </small>
-                                    </div>
-                                </Form.Group>
+                                <JoditEditor
+                                    value={currentPlantilla.cuerpo || ''}
+                                    config={editorConfig}
+                                    onBlur={val => setCurrentPlantilla({ ...currentPlantilla, cuerpo: val })}
+                                />
                             </Col>
                         </Row>
                     </Form>
                 </Modal.Body>
                 <Modal.Footer className="border-top border-main-opacity bg-surface bg-opacity-10">
-                    <Button variant="outline-primary" onClick={() => setShowModal(false)} className="border-main-opacity rounded-pill px-4">
-                        Cancelar
-                    </Button>
-                    <Button variant="primary" onClick={handleSavePlantilla} className="btn-gradient-primary border-0 rounded-pill px-4">
-                        <Save size={18} className="me-2" />
-                        {currentPlantilla.id ? 'Guardar Cambios' : 'Crear Plantilla'}
+                    <Button variant="outline-primary" onClick={() => setShowModal(false)} className="rounded-pill px-4">Cancelar</Button>
+                    <Button variant="primary" onClick={handleSavePlantilla} className="btn-gradient-primary rounded-pill px-4">Guardar</Button>
+                </Modal.Footer>
+            </Modal>
+
+            {/* Modal para Reportes PDF */}
+            <Modal show={showReportModal} onHide={() => setShowReportModal(false)} size="xl" centered contentClassName="glass-modal">
+                <Modal.Header closeButton className="border-bottom border-main-opacity">
+                    <Modal.Title className="fw-bold text-main">
+                        Diseñador de Reporte: {currentReporte.nombre}
+                    </Modal.Title>
+                </Modal.Header>
+                <Modal.Body className="p-4 bg-surface bg-opacity-10">
+                    <div className="alert alert-info border-0 bg-info bg-opacity-10 text-info small mb-4">
+                        <Save size={14} className="me-2" />
+                        <strong>Nota Técnica:</strong> Los reportes PDF utilizan HTML y CSS. Puedes usar variables como <code>{"{{"} periodo {"}}"}</code>, <code>{"{{"} fecha {"}}"}</code> o loops <code>{"{% for p in preguntas %}"}</code> para inyectar datos reales.
+                    </div>
+                    <Form.Group>
+                        <Form.Label className="text-dim small fw-bold mb-2">CONTENIDO HTML DEL REPORTE</Form.Label>
+                        <JoditEditor
+                            value={currentReporte.contenido_html || ''}
+                            config={{ ...editorConfig, height: 600 }}
+                            onBlur={val => setCurrentReporte({ ...currentReporte, contenido_html: val })}
+                        />
+                    </Form.Group>
+                </Modal.Body>
+                <Modal.Footer className="border-top border-main-opacity bg-surface bg-opacity-10">
+                    <Button variant="outline-primary" onClick={() => setShowReportModal(false)} className="rounded-pill px-4">Cerrar</Button>
+                    <Button variant="primary" onClick={handleSaveReporte} className="btn-gradient-primary rounded-pill px-4">
+                        <Save size={18} className="me-2" /> GUARDAR DISEÑO DOCUMENTO
                     </Button>
                 </Modal.Footer>
             </Modal>

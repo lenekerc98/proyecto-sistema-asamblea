@@ -57,7 +57,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ user, onLogout, isCollapsed, i
         return item.path;
     };
 
-    // Aplicar filtrado dinámico basado en el campo JSON 'permisos' del rol
+    // Aplicar filtrado dinámico basado en el campo JSON 'permisos' del rol y campos booleanos directos
     const getFilteredNavItems = (roleName: string) => {
         const rolInfo = user?.rol;
 
@@ -73,10 +73,16 @@ export const Sidebar: React.FC<SidebarProps> = ({ user, onLogout, isCollapsed, i
             }));
         }
 
-        if (!rolInfo || !rolInfo.permisos) return [];
+        if (!rolInfo) return [];
 
         return MENU_STRUCTURE
-            .filter(item => rolInfo.permisos[item.key]) // Filtrar rama principal
+            .filter(item => {
+                // Si tiene un key específico, verificar en el objeto permisos O en los campos booleanos directos
+                const hasPermission = !!(rolInfo.permisos?.[item.key] ||
+                    (item.key === 'permiso_proyector' && rolInfo.permiso_proyector) ||
+                    (item.key === 'permiso_votar' && rolInfo.permiso_votar));
+                return hasPermission;
+            })
             .map(item => {
                 const processedItem = {
                     ...item,
@@ -85,7 +91,12 @@ export const Sidebar: React.FC<SidebarProps> = ({ user, onLogout, isCollapsed, i
 
                 if (item.subItems) {
                     processedItem.subItems = item.subItems
-                        .filter(sub => rolInfo.permisos[sub.key]) // Filtrar subramas
+                        .filter(sub => {
+                            const hasSubPermission = !!(rolInfo.permisos?.[sub.key] ||
+                                (sub.key === 'permiso_proyector' && rolInfo.permiso_proyector) ||
+                                (sub.key === 'permiso_votar' && rolInfo.permiso_votar));
+                            return hasSubPermission;
+                        })
                         .map(sub => ({
                             ...sub,
                             path: resolveDynamicPath(sub, roleName)

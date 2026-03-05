@@ -36,6 +36,7 @@ export interface AsambleaConfig {
     vista_proyector?: string;
     modo_entorno?: string;
     notificar_inicio_asamblea?: boolean;
+    tipo_votacion_permitida?: string;
     firma_email?: string;
 }
 

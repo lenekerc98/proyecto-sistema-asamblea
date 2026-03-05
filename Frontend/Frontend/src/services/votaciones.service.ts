@@ -92,5 +92,40 @@ export const votacionesService = {
     async eliminarOpcion(opcionId: number): Promise<any> {
         const response = await axios.delete(`${API_URL}/votaciones/opciones/${opcionId}`, { headers: getAuthHeaders() });
         return response.data;
+    },
+
+    async registrarVotoManual(voto: { periodo: string, pregunta_id: number, numero_accionista: number, opcion: string }): Promise<any> {
+        const response = await axios.post(`${API_URL}/votaciones/votar/`, voto, { headers: getAuthHeaders() });
+        return response.data;
+    },
+
+    async exportarResultadosVotacion(): Promise<void> {
+        const response = await axios.get(`${API_URL}/votaciones/reportes/resultados-votacion`, {
+            responseType: 'blob',
+            headers: getAuthHeaders()
+        });
+        const url = window.URL.createObjectURL(new Blob([response.data]));
+        const link = document.createElement('a');
+        link.href = url;
+        link.setAttribute('download', 'Reporte_Votaciones.xlsx');
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    },
+
+    async exportarActa(formato: string = 'excel'): Promise<void> {
+        const response = await axios.get(`${API_URL}/votaciones/reportes/acta`, {
+            params: { formato },
+            responseType: 'blob',
+            headers: getAuthHeaders()
+        });
+        const url = window.URL.createObjectURL(new Blob([response.data]));
+        const link = document.createElement('a');
+        link.href = url;
+        const extension = formato === 'pdf' ? 'pdf' : 'xlsx';
+        link.setAttribute('download', `Acta_Asamblea.${extension}`);
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
     }
 };

@@ -23,6 +23,7 @@ class ParametrosAsamblea(Base):
     vista_proyector = Column(String(50), default="espera") # Controla qué se muestra en la pantalla del proyector
     modo_entorno = Column(String(20), default="produccion") # 'produccion' o 'prueba'
     notificar_inicio_asamblea = Column(Boolean, default=False) # Notificar a usuarios al iniciar asamblea
+    tipo_votacion_permitida = Column(String(20), default="hibrido") # 'hibrido', 'telefono', 'papel'
     
     # --- Configuración Email (Global) ---
     firma_email = Column(Text, nullable=True) # Firma por defecto para el sistema
@@ -34,6 +35,16 @@ class EmailPlantilla(Base):
     asunto = Column(String(200), nullable=False)
     cuerpo = Column(Text, nullable=False)
     asignacion = Column(String(50), nullable=False, default="global") # 'global', 'asistencia', 'votacion'
+
+class PlantillaReporte(Base):
+    __tablename__ = "plantilla_reportes"
+    id = Column(Integer, primary_key=True, index=True)
+    slug = Column(String(50), unique=True, index=True) # 'acta', 'quorum', 'escrutinio'
+    nombre = Column(String(200), nullable=False)
+    contenido_html = Column(Text, nullable=False)
+    estilos_css = Column(Text, nullable=True)
+    logo_path = Column(String(255), nullable=True)
+    pie_pagina = Column(Text, nullable=True)
 
 
 class ParametrosMail(Base):
@@ -61,6 +72,8 @@ class Rol(Base):
     permiso_base_datos = Column(Boolean, default=False)
     permiso_registro_asistencia = Column(Boolean, default=False)
     permiso_perfil_usuario = Column(Boolean, default=True)
+    permiso_proyector = Column(Boolean, default=False)
+    permiso_votar = Column(Boolean, default=False)
     permisos = Column(JSON, default={})
 
     usuarios = relationship("Usuario", back_populates="rol")

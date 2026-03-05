@@ -27,16 +27,22 @@ export interface RolSistema {
     permiso_base_datos?: boolean;
     permiso_registro_asistencia?: boolean;
     permiso_perfil_usuario?: boolean;
+    permiso_proyector?: boolean;
+    permiso_votar?: boolean;
 }
 
 export interface RolSistemaCreate {
     nombre: string;
     permisos?: Record<string, boolean>;
+    permiso_proyector?: boolean;
+    permiso_votar?: boolean;
 }
 
 export interface RolSistemaUpdate {
     nombre?: string;
     permisos?: Record<string, boolean>;
+    permiso_proyector?: boolean;
+    permiso_votar?: boolean;
 }
 
 export interface TipoVinculo {

@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { Container, Card, Form, Button, Spinner } from 'react-bootstrap';
-import { Search, UserCheck, Vote, CheckCircle2, LogOut, ChevronRight, Hash } from 'lucide-react';
+import { Search, UserCheck, Vote, CheckCircle2, LogOut, ChevronRight } from 'lucide-react';
 import { accionistaVotoService } from '../../services/voto_accionista.service';
 import type { PreguntaVotacion } from '../../services/voto_accionista.service';
 import Swal from 'sweetalert2';
+import { configService } from '../../services/config.service';
 import '../../styles/Glassmorphism.css';
 
 export const Votacion_App_Page: React.FC = () => {
@@ -15,6 +16,7 @@ export const Votacion_App_Page: React.FC = () => {
     const [preguntaActiva, setPreguntaActiva] = useState<PreguntaVotacion | null>(null);
     const [cargandoPregunta, setCargandoPregunta] = useState(false);
     const [enviandoVoto, setEnviandoVoto] = useState(false);
+    const [asambleaConfig, setAsambleaConfig] = useState<any>(null);
 
     // Revisar sesión al cargar
     useEffect(() => {
@@ -37,6 +39,17 @@ export const Votacion_App_Page: React.FC = () => {
                 handleLogout();
             }
         }
+
+        // Cargar configuración de la asamblea
+        const loadConfig = async () => {
+            try {
+                const config = await configService.getAsambleaConfig();
+                setAsambleaConfig(config);
+            } catch (error) {
+                console.error("Error al cargar config:", error);
+            }
+        };
+        loadConfig();
     }, []);
 
     // Polling cada 5 segundos para actualizar la pregunta automáticamente
@@ -263,11 +276,25 @@ export const Votacion_App_Page: React.FC = () => {
                     <div className="flex-grow-1 d-flex flex-column justify-content-center align-items-center text-center">
                         <Card className="bg-glass border-glass w-100 py-5 rounded-4 shadow-lg border-opacity-10 text-white-50">
                             <Card.Body className="py-4">
-                                <Search size={48} className="text-white-50 opacity-50 mb-4 mx-auto" style={{ display: 'block' }} />
-                                <h3 className="h5 text-white mb-2">Asamblea en Espera</h3>
-                                <p className="mb-0 text-white-50 px-3">
-                                    {preguntaActiva?.mensaje || 'Aún no hay preguntas abiertas. La pregunta aparecerá automáticamente en su pantalla tan pronto inicie la votación.'}
-                                </p>
+                                {asambleaConfig && !asambleaConfig.asamblea_iniciada ? (
+                                    <>
+                                        <div className="p-3 mb-4 rounded-circle bg-warning bg-opacity-10 text-warning d-inline-flex">
+                                            <Search size={48} />
+                                        </div>
+                                        <h3 className="h5 text-white mb-2 text-uppercase">Asamblea no Iniciada</h3>
+                                        <p className="mb-0 text-white-50 px-3">
+                                            Por favor, espere a que la mesa directiva dé inicio oficial al evento para poder visualizar las preguntas de votación.
+                                        </p>
+                                    </>
+                                ) : (
+                                    <>
+                                        <Search size={48} className="text-white-50 opacity-50 mb-4 mx-auto" style={{ display: 'block' }} />
+                                        <h3 className="h5 text-white mb-2">Asamblea en Espera</h3>
+                                        <p className="mb-0 text-white-50 px-3">
+                                            {preguntaActiva?.mensaje || 'Aún no hay preguntas abiertas. La pregunta aparecerá automáticamente en su pantalla tan pronto inicie la votación.'}
+                                        </p>
+                                    </>
+                                )}
                             </Card.Body>
                         </Card>
                     </div>
@@ -302,32 +329,46 @@ export const Votacion_App_Page: React.FC = () => {
                                 </h3>
                             </div>
                             <Card.Body className="p-4 d-flex flex-column gap-3 justify-content-center flex-grow-1">
-                                {preguntaActiva.pregunta?.opciones.map((opcion) => {
-                                    // Coloreado dinámico para botones grandes
-                                    const lowerOp = opcion.texto.toLowerCase();
-                                    let btnVariant = 'outline-primary';
-                                    let bgClass = 'primary';
-                                    if (['si', 'a favor'].includes(lowerOp)) { btnVariant = 'outline-success'; bgClass = 'success'; }
-                                    else if (['no', 'en contra'].includes(lowerOp)) { btnVariant = 'outline-danger'; bgClass = 'danger'; }
-                                    else if (['abstencion', 'abstención'].includes(lowerOp)) { btnVariant = 'outline-info'; bgClass = 'info'; }
-                                    else if (['nulo', 'blanco'].includes(lowerOp)) { btnVariant = 'outline-secondary'; bgClass = 'secondary'; }
+                                {asambleaConfig?.tipo_votacion_permitida === 'papel' ? (
+                                    <div className="text-center py-4">
+                                        <div className="p-3 rounded-4 bg-warning bg-opacity-10 border border-warning border-opacity-20 mb-4">
+                                            <p className="text-warning fw-bold mb-0">
+                                                ESTA VOTACIÓN ES EXCLUSIVAMENTE MEDIANTE PAPELETA FÍSICA.
+                                            </p>
+                                        </div>
+                                        <p className="text-white-50 small">
+                                            Por favor, use la papeleta entregada en el registro para emitir su voto.
+                                            El personal de mesa registrará su decisión manualmente.
+                                        </p>
+                                    </div>
+                                ) : (
+                                    preguntaActiva.pregunta?.opciones.map((opcion) => {
+                                        // Coloreado dinámico para botones grandes
+                                        const lowerOp = opcion.texto.toLowerCase();
+                                        let btnVariant = 'outline-primary';
+                                        let bgClass = 'primary';
+                                        if (['si', 'a favor'].includes(lowerOp)) { btnVariant = 'outline-success'; bgClass = 'success'; }
+                                        else if (['no', 'en contra'].includes(lowerOp)) { btnVariant = 'outline-danger'; bgClass = 'danger'; }
+                                        else if (['abstencion', 'abstención'].includes(lowerOp)) { btnVariant = 'outline-info'; bgClass = 'info'; }
+                                        else if (['nulo', 'blanco'].includes(lowerOp)) { btnVariant = 'outline-secondary'; bgClass = 'secondary'; }
 
-                                    return (
-                                        <Button
-                                            key={opcion.id}
-                                            variant={btnVariant}
-                                            disabled={enviandoVoto}
-                                            onClick={() => handleVotar(opcion.id, opcion.texto)}
-                                            className={`w-100 py-4 fs-5 fw-bold rounded-4 option-button bg-opacity-10 bg-${bgClass} text-uppercase letter-spacing-wide shadow-none`}
-                                            style={{
-                                                borderWidth: '2px',
-                                                transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)'
-                                            }}
-                                        >
-                                            {opcion.texto}
-                                        </Button>
-                                    );
-                                })}
+                                        return (
+                                            <Button
+                                                key={opcion.id}
+                                                variant={btnVariant}
+                                                disabled={enviandoVoto}
+                                                onClick={() => handleVotar(opcion.id, opcion.texto)}
+                                                className={`w-100 py-4 fs-5 fw-bold rounded-4 option-button bg-opacity-10 bg-${bgClass} text-uppercase letter-spacing-wide shadow-none`}
+                                                style={{
+                                                    borderWidth: '2px',
+                                                    transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)'
+                                                }}
+                                            >
+                                                {opcion.texto}
+                                            </Button>
+                                        );
+                                    })
+                                )}
                             </Card.Body>
                         </Card>
                     </div>

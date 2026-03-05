@@ -1042,3 +1042,62 @@ def exportar_asistencia(
         media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
         headers={"Content-Disposition": f"attachment; filename=Asistencia_Asamblea_{periodo}.xlsx"}
     )
+
+@router.get("/reportes/quorum")
+def exportar_quorum_detallado(
+    db: Session = Depends(database.get_db),
+    current_user: models.Usuario = Depends(auth.get_current_user)
+):
+    config = db.query(models.ParametrosAsamblea).first()
+    periodo = config.periodo_activo if config else "2025"
+    
+    # Obtener el quórum calculado
+    total_quorum_asamblea = db.query(func.sum(models.Accionista.porcentaje_base))\
+        .join(models.Asistencia)\
+        .filter(models.Asistencia.asistio == True)\
+        .filter(models.Asistencia.fuera_de_quorum == False).scalar() or 0.0
+    
+    # Obtener lista de asistentes que conforman el quórum
+    asistentes = db.query(models.Accionista).join(models.Asistencia).filter(
+        models.Asistencia.asistio == True,
+        models.Asistencia.fuera_de_quorum == False,
+        models.Accionista.periodo == periodo
+    ).all()
+    
+    data = []
+    for acc in asistentes:
+        asis = db.query(models.Asistencia).filter(models.Asistencia.accionista_id == acc.id).first()
+        data.append({
+            "Nº Accionista": acc.numero_accionista,
+            "Nombre Titular": acc.nombre_titular,
+            "Identificación Titular": acc.num_doc,
+            "Total Acciones": acc.total_acciones,
+            "% Participación (Base 100%)": acc.porcentaje_base,
+            "% Peso en Quórum Actual": (acc.porcentaje_base / total_quorum_asamblea * 100) if total_quorum_asamblea > 0 else 0,
+            "Persona que firmó": asis.asistente_nombre if asis else "N/A",
+            "Identificación Firma": asis.asistente_identificacion if asis else "N/A",
+            "Hora Ingreso": asis.hora_registro.strftime("%Y-%m-%d %H:%M:%S") if asis and asis.hora_registro else "N/A"
+        })
+    
+    df = pd.DataFrame(data)
+    
+    # Añadir fila de resumen
+    resumen = pd.DataFrame([{
+        "Nº Accionista": "TOTAL",
+        "Nombre Titular": f"{len(asistentes)} SOCIOS",
+        "Total Acciones": sum([acc.total_acciones for acc in asistentes]),
+        "% Participación (Base 100%)": total_quorum_asamblea,
+        "% Peso en Quórum Actual": 100.0 if total_quorum_asamblea > 0 else 0
+    }])
+    df = pd.concat([df, resumen], ignore_index=True)
+    
+    output = io.BytesIO()
+    with pd.ExcelWriter(output, engine='openpyxl') as writer:
+        df.to_excel(writer, index=False, sheet_name='Quórum Presente')
+    
+    output.seek(0)
+    return StreamingResponse(
+        output, 
+        media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        headers={"Content-Disposition": f"attachment; filename=Reporte_Quorum_{periodo}.xlsx"}
+    )

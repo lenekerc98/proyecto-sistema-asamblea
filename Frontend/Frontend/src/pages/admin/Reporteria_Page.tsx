@@ -2,7 +2,8 @@ import React, { useState } from 'react';
 import { Row, Col, Card, Form, Button } from 'react-bootstrap';
 import { FileText, Download, FileSpreadsheet, File } from 'lucide-react';
 import Swal from 'sweetalert2';
-import { exportarPadron, exportarAsistencia } from '../../services/accionistas.service';
+import { exportarPadron, exportarAsistencia, exportarQuorum } from '../../services/accionistas.service';
+import { votacionesService } from '../../services/votaciones.service';
 import '../../styles/Glassmorphism.css';
 
 export const Reporteria_Page: React.FC = () => {
@@ -30,6 +31,12 @@ export const Reporteria_Page: React.FC = () => {
                 await exportarPadron();
             } else if (tipoReporte === 'Registro Asistencias') {
                 await exportarAsistencia();
+            } else if (tipoReporte === 'Quorum Presente') {
+                await exportarQuorum();
+            } else if (tipoReporte === 'Resultados Votacion') {
+                await votacionesService.exportarResultadosVotacion();
+            } else if (tipoReporte === 'Acta Asamblea') {
+                await votacionesService.exportarActa(formatoExportacion);
             } else {
                 // Para los otros reportes que aún no tienen endpoint real
                 await new Promise(resolve => setTimeout(resolve, 1500));

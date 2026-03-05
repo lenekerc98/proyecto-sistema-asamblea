@@ -28,6 +28,8 @@ class RolBase(BaseModel):
     permiso_base_datos: bool = False
     permiso_registro_asistencia: bool = False
     permiso_perfil_usuario: bool = True
+    permiso_proyector: bool = False
+    permiso_votar: bool = False
     permisos: Dict[str, bool] = {}
 
 class RolCreate(RolBase):
@@ -44,6 +46,8 @@ class RolUpdate(BaseModel):
     permiso_base_datos: Optional[bool] = None
     permiso_registro_asistencia: Optional[bool] = None
     permiso_perfil_usuario: Optional[bool] = None
+    permiso_proyector: Optional[bool] = None
+    permiso_votar: Optional[bool] = None
     permisos: Optional[Dict[str, bool]] = None
 
 class RolOut(RolBase):
@@ -340,6 +344,7 @@ class ParametrosAsambleaBase(BaseModel):
     vista_proyector: str = "espera"
     modo_entorno: str = "produccion"
     notificar_inicio_asamblea: bool = False
+    tipo_votacion_permitida: str = "hibrido"
     firma_email: Optional[str] = None
 
 class ParametrosAsambleaUpdate(BaseModel):
@@ -356,6 +361,7 @@ class ParametrosAsambleaUpdate(BaseModel):
     vista_proyector: Optional[str] = None
     modo_entorno: Optional[str] = None
     notificar_inicio_asamblea: Optional[bool] = None
+    tipo_votacion_permitida: Optional[str] = None
     firma_email: Optional[str] = None
 
 class EmailPlantillaBase(BaseModel):
@@ -490,6 +496,9 @@ class EnvioMasivoRequest(BaseModel):
     filtro: Optional[str] = "todos" # todos, asistentes, naturales, juridicas
     ids_accionistas: Optional[List[int]] = None
 
+    class Config:
+        from_attributes = True
+
 class DestinatarioListItem(BaseModel):
     id: int
     numero_accionista: int
@@ -497,5 +506,26 @@ class DestinatarioListItem(BaseModel):
     correo: str
     tipo_doc: str
 
+    class Config:
+        from_attributes = True
+
+class PlantillaReporteBase(BaseModel):
+    slug: str
+    nombre: str
+    contenido_html: str
+    estilos_css: Optional[str] = None
+    pie_pagina: Optional[str] = None
+
+class PlantillaReporteCreate(PlantillaReporteBase):
+    pass
+
+class PlantillaReporteUpdate(BaseModel):
+    nombre: Optional[str] = None
+    contenido_html: Optional[str] = None
+    estilos_css: Optional[str] = None
+    pie_pagina: Optional[str] = None
+
+class PlantillaReporteOut(PlantillaReporteBase):
+    id: int
     class Config:
         from_attributes = True
